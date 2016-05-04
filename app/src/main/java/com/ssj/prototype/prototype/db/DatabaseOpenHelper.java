@@ -21,11 +21,12 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper {
     private static final int DATABASE_VERSION = 1;
 
     private static final String PROGRAM_TABLE_CREATE = "CREATE TABLE " + PROGRAM_TABLE_NAME
-            + " (" +COLUMN_YEAR + " INTEGER,"
-            +COLUMN_MAKE + " TEXT NOT NULL,"
-            +COLUMN_MODEL + " TEXT NOT NULL,"
-            +COLUMN_TRIM + " TEXT NOT NULL"
-            +");";
+            + " (" + COLUMN_YEAR + " TEXT,"
+            + COLUMN_MAKE + " TEXT,"
+            + COLUMN_MODEL + " TEXT,"
+            + COLUMN_TRIM + " TEXT"
+            + ");";
+
 
     private static final String PROGRAM_TABLE_DROP = "DROP TABLE IF EXISTS " + PROGRAM_TABLE_NAME;
 
@@ -35,6 +36,12 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
+        Log.d("INFO",PROGRAM_TABLE_CREATE);
+        db.execSQL(PROGRAM_TABLE_CREATE);
+    }
+
+    public void recreate(SQLiteDatabase db) {
+        db.execSQL(PROGRAM_TABLE_DROP);
         db.execSQL(PROGRAM_TABLE_CREATE);
     }
 
