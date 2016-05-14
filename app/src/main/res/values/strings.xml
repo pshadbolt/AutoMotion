@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">Prototype</string>
+    <string name="title_activity_addvehicle">Add New Vehicle</string>
+    <string name="title_activity_garage">Garage</string>
 </resources>
