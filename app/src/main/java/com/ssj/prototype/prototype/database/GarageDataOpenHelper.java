@@ -10,25 +10,26 @@ import android.util.Log;
  */
 public class GarageDataOpenHelper extends SQLiteOpenHelper {
 
-    public static final String PROGRAM_TABLE_NAME = "garage";
+    public static final String GARAGE_TABLE = "garage";
 
+    public static final String COLUMN_ID = "_id";
     public static final String COLUMN_YEAR = "year";
     public static final String COLUMN_MAKE = "make";
     public static final String COLUMN_MODEL = "model";
     public static final String COLUMN_TRIM = "trim";
 
     private static final String DATABASE_NAME = "garage.db";
-    private static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = 5;
 
-    private static final String PROGRAM_TABLE_CREATE = "CREATE TABLE " + PROGRAM_TABLE_NAME
-            + " (" + COLUMN_YEAR + " TEXT,"
+    private static final String PROGRAM_TABLE_CREATE = "CREATE TABLE " + GARAGE_TABLE
+            + " (" + COLUMN_ID + " integer primary key autoincrement, "
+            + COLUMN_YEAR + " TEXT,"
             + COLUMN_MAKE + " TEXT,"
             + COLUMN_MODEL + " TEXT,"
             + COLUMN_TRIM + " TEXT"
             + ");";
 
-
-    private static final String PROGRAM_TABLE_DROP = "DROP TABLE IF EXISTS " + PROGRAM_TABLE_NAME;
+    private static final String PROGRAM_TABLE_DROP = "DROP TABLE IF EXISTS " + GARAGE_TABLE;
 
     GarageDataOpenHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -36,7 +37,11 @@ public class GarageDataOpenHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        Log.d("INFO", PROGRAM_TABLE_CREATE);
+        db.execSQL(PROGRAM_TABLE_CREATE);
+    }
+
+    public void drop(SQLiteDatabase db) {
+        db.execSQL(PROGRAM_TABLE_DROP);
         db.execSQL(PROGRAM_TABLE_CREATE);
     }
 
@@ -48,5 +53,4 @@ public class GarageDataOpenHelper extends SQLiteOpenHelper {
         db.execSQL(PROGRAM_TABLE_DROP);
         onCreate(db);
     }
-
 }
