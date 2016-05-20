@@ -41,7 +41,7 @@ public class GarageDataSource {
         values.put(GarageDataOpenHelper.COLUMN_YEAR, vehicle.getYear());
         values.put(GarageDataOpenHelper.COLUMN_MAKE, vehicle.getMake());
         values.put(GarageDataOpenHelper.COLUMN_MODEL, vehicle.getModel());
-        values.put(GarageDataOpenHelper.COLUMN_TRIM, vehicle.getTrim());
+        values.put(GarageDataOpenHelper.COLUMN_TRIM, vehicle.getStyle());
         long insertId = database.insert(GarageDataOpenHelper.GARAGE_TABLE, null, values);
     }
 

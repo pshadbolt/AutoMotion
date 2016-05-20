@@ -2,9 +2,6 @@ package com.ssj.prototype.prototype.database;
 
 import android.os.AsyncTask;
 import android.util.Log;
-import android.view.View;
-import android.widget.ProgressBar;
-import android.widget.RelativeLayout;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -27,8 +24,6 @@ public class VehicleDataSource extends AsyncTask<String, Void, String> {
     private String endpoint = "https://api.edmunds.com/api/vehicle/v2/";
     private String format = "?fmt=jsonl";
     private String api_key = "&api_key=m6vz5qajjyxbctbehqtnguz2";
-
-    private Exception exception;
 
     protected String doInBackground(String... urls) {
         try {

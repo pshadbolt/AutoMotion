@@ -56,9 +56,9 @@ public class DebugActivity extends AppCompatActivity {
                 vehicle.setMake(st.nextToken());
                 vehicle.setModel(st.nextToken());
                 if (st.hasMoreTokens())
-                    vehicle.setTrim(st.nextToken());
+                    vehicle.setStyle(st.nextToken());
                 else
-                    vehicle.setTrim("");
+                    vehicle.setStyle("");
                 vehicleLocalDatasource.insertValue(vehicle);
             }
         } catch (IOException e) {

@@ -24,7 +24,6 @@ public class GarageActivity extends AppCompatActivity {
     private GarageDataSource garageDatasource;
     private ListView listView;
     private ArrayAdapter<String> adapter;
-
     private ArrayList<Vehicle> vehicles;
 
     @Override
@@ -80,6 +79,9 @@ public class GarageActivity extends AppCompatActivity {
         populateList();
     }
 
+    /**
+     *
+     */
     private void populateList() {
 
         vehicles = garageDatasource.getAllEntries();
@@ -98,10 +100,13 @@ public class GarageActivity extends AppCompatActivity {
      * @param position
      */
     private void clickOnVehicle(int position) {
-        //garageDatasource.deleteVehicle(vehicles.get(position).getId());
         populateList();
     }
 
+    /**
+     *
+     * @param position
+     */
     private void longClickOnVehicle(int position) {
         garageDatasource.deleteVehicle(vehicles.get(position).getId());
         Toast.makeText(this, "Vehicle Deleted From Garage", Toast.LENGTH_LONG).show();

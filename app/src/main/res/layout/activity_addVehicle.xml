@@ -17,10 +17,10 @@
         android:visibility="visible">
 
         <ProgressBar
+            android:id="@+id/progressBar"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:indeterminate="true"
-            android:id="@+id/progressBar" />
+            android:indeterminate="true" />
     </RelativeLayout>
 
     <Spinner
@@ -52,25 +52,24 @@
         android:visibility="invisible" />
 
     <Button
+        android:id="@+id/confirm"
+        style="@style/Base.Widget.AppCompat.Button.Borderless"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Confirm"
-        android:id="@+id/confirm"
-        android:onClick="confirm"
         android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
-        style="@style/Base.Widget.AppCompat.Button.Borderless"
-        android:visibility="invisible"/>
+        android:onClick="confirm"
+        android:enabled="false"
+        android:text="Confirm" />
 
     <Button
+        android:id="@+id/cancel"
+        style="@style/Base.Widget.AppCompat.Button.Borderless"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Cancel"
-        android:id="@+id/cancel"
-        android:onClick="cancel"
         android:layout_alignParentBottom="true"
         android:layout_alignParentLeft="true"
-        style="@style/Base.Widget.AppCompat.Button.Borderless"
-        android:visibility="invisible"/>
+        android:onClick="cancel"
+        android:text="Cancel" />
 
 </RelativeLayout>

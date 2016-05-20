@@ -51,7 +51,7 @@ public class VehicleLocalDataSource {
         values.put(VehicleLocalDataOpenHelper.COLUMN_YEAR, vehicle.getYear());
         values.put(VehicleLocalDataOpenHelper.COLUMN_MAKE, vehicle.getMake());
         values.put(VehicleLocalDataOpenHelper.COLUMN_MODEL, vehicle.getModel());
-        values.put(VehicleLocalDataOpenHelper.COLUMN_TRIM, vehicle.getTrim());
+        values.put(VehicleLocalDataOpenHelper.COLUMN_TRIM, vehicle.getStyle());
         long insertId = database.insert(VehicleLocalDataOpenHelper.VEHICLES_TABLE, null, values);
     }
 
