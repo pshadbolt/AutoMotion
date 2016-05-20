@@ -8,7 +8,7 @@ import android.util.Log;
 /**
  * Created by shadbolt on 5/1/2016.
  */
-public class VehicleDataOpenHelper extends SQLiteOpenHelper {
+public class VehicleLocalDataOpenHelper extends SQLiteOpenHelper {
 
     public static final String VEHICLES_TABLE = "vehicles";
 
@@ -30,7 +30,7 @@ public class VehicleDataOpenHelper extends SQLiteOpenHelper {
 
     private static final String PROGRAM_TABLE_DROP = "DROP TABLE IF EXISTS " + VEHICLES_TABLE;
 
-    VehicleDataOpenHelper(Context context) {
+    VehicleLocalDataOpenHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
 
@@ -46,7 +46,7 @@ public class VehicleDataOpenHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        Log.w(VehicleDataOpenHelper.class.getName(),
+        Log.w(VehicleLocalDataOpenHelper.class.getName(),
                 "Upgrading database from version " + oldVersion + " to "
                         + newVersion + ", which will destroy all old data");
         db.execSQL(PROGRAM_TABLE_DROP);

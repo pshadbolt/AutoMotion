@@ -47,7 +47,7 @@ public class GarageDataOpenHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        Log.w(VehicleDataOpenHelper.class.getName(),
+        Log.w(VehicleLocalDataOpenHelper.class.getName(),
                 "Upgrading database from version " + oldVersion + " to "
                         + newVersion + ", which will destroy all old data");
         db.execSQL(PROGRAM_TABLE_DROP);

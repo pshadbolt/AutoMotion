@@ -16,11 +16,11 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
     }
 
-    public void launchGarage(View view){
+    public void launchGarage(View view) {
         startActivity(new Intent(this, GarageActivity.class));
     }
 
-    public void launchDebug(View view){
+    public void launchDebug(View view) {
         startActivity(new Intent(this, DebugActivity.class));
     }
 

@@ -5,10 +5,12 @@ import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import com.ssj.prototype.prototype.adapters.GarageListArrayAdapter;
 import com.ssj.prototype.prototype.model.Vehicle;
@@ -47,6 +49,14 @@ public class GarageActivity extends AppCompatActivity {
             }
         });
 
+        listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long arg3) {
+                longClickOnVehicle(position);
+                return true;
+            }
+        });
+
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -59,12 +69,14 @@ public class GarageActivity extends AppCompatActivity {
     @Override
     protected void onRestart() {
         super.onRestart();
+        garageDatasource.open();
         populateList();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
+        garageDatasource.open();
         populateList();
     }
 
@@ -82,9 +94,23 @@ public class GarageActivity extends AppCompatActivity {
         listView.setAdapter(adapter);
     }
 
+    /**
+     * @param position
+     */
     private void clickOnVehicle(int position) {
-
-        garageDatasource.deleteVehicle(vehicles.get(position).getId());
+        //garageDatasource.deleteVehicle(vehicles.get(position).getId());
         populateList();
+    }
+
+    private void longClickOnVehicle(int position) {
+        garageDatasource.deleteVehicle(vehicles.get(position).getId());
+        Toast.makeText(this, "Vehicle Deleted From Garage", Toast.LENGTH_LONG).show();
+        populateList();
+    }
+
+    @Override
+    protected void onStop() {
+        garageDatasource.close();
+        super.onStop();
     }
 }
