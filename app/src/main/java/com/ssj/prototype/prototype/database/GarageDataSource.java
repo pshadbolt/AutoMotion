@@ -18,7 +18,8 @@ public class GarageDataSource {
     // Database fields
     private SQLiteDatabase database;
     private GarageDataOpenHelper dbHelper;
-    private String[] allColumns = {GarageDataOpenHelper.COLUMN_ID, GarageDataOpenHelper.COLUMN_YEAR, GarageDataOpenHelper.COLUMN_MAKE, GarageDataOpenHelper.COLUMN_MODEL, GarageDataOpenHelper.COLUMN_TRIM};
+    private String[] allVehicleColumns = {GarageDataOpenHelper.COLUMN_ID, GarageDataOpenHelper.COLUMN_YEAR, GarageDataOpenHelper.COLUMN_MAKE, GarageDataOpenHelper.COLUMN_MODEL, GarageDataOpenHelper.COLUMN_TRIM};
+    private String[] allMaintenanceColumns = {GarageDataOpenHelper.COLUMN_VEHICLE_ID, GarageDataOpenHelper.COLUMN_MILEAGE, GarageDataOpenHelper.COLUMN_ACTION, GarageDataOpenHelper.COLUMN_ITEM};
 
     public GarageDataSource(Context context) {
         dbHelper = new GarageDataOpenHelper(context);
@@ -36,22 +37,32 @@ public class GarageDataSource {
         dbHelper.drop(database);
     }
 
-    public void insertVehicle(Vehicle vehicle) {
+    public Vehicle insertVehicle(String year, String make, String model, String style) {
         ContentValues values = new ContentValues();
-        values.put(GarageDataOpenHelper.COLUMN_YEAR, vehicle.getYear());
-        values.put(GarageDataOpenHelper.COLUMN_MAKE, vehicle.getMake());
-        values.put(GarageDataOpenHelper.COLUMN_MODEL, vehicle.getModel());
-        values.put(GarageDataOpenHelper.COLUMN_TRIM, vehicle.getStyle());
-        long insertId = database.insert(GarageDataOpenHelper.GARAGE_TABLE, null, values);
+        values.put(GarageDataOpenHelper.COLUMN_YEAR, year);
+        values.put(GarageDataOpenHelper.COLUMN_MAKE, make);
+        values.put(GarageDataOpenHelper.COLUMN_MODEL, model);
+        values.put(GarageDataOpenHelper.COLUMN_TRIM, style);
+        long id = database.insert(GarageDataOpenHelper.TABLE_VEHICLE_NAME, null, values);
+        return new Vehicle(id, year, make, model, style);
+    }
+
+    public void insertMaintenance(Vehicle vehicle, String mileage, String action, String item) {
+        ContentValues values = new ContentValues();
+        values.put(GarageDataOpenHelper.COLUMN_VEHICLE_ID, vehicle.getId());
+        values.put(GarageDataOpenHelper.COLUMN_MILEAGE, Integer.parseInt(mileage));
+        values.put(GarageDataOpenHelper.COLUMN_ACTION, action);
+        values.put(GarageDataOpenHelper.COLUMN_ITEM, item);
+        database.insert(GarageDataOpenHelper.TABLE_MAINTENANCE_NAME, null, values);
     }
 
     public void deleteVehicle(long id) {
-        database.delete(GarageDataOpenHelper.GARAGE_TABLE, GarageDataOpenHelper.COLUMN_ID
+        database.delete(GarageDataOpenHelper.TABLE_VEHICLE_NAME, GarageDataOpenHelper.COLUMN_ID
                 + " = " + id, null);
     }
 
-    public ArrayList<Vehicle> getAllEntries() {
-        Cursor cursor = database.query(GarageDataOpenHelper.GARAGE_TABLE, allColumns, null, null, null, null, null);
+    public ArrayList<Vehicle> getAllVehicles() {
+        Cursor cursor = database.query(GarageDataOpenHelper.TABLE_VEHICLE_NAME, allVehicleColumns, null, null, null, null, null);
 
         ArrayList<Vehicle> vehicles = new ArrayList<Vehicle>();
 
@@ -64,6 +75,36 @@ public class GarageDataSource {
         cursor.close();
 
         return vehicles;
+    }
+
+    public String getAllMaintenance() {
+        Cursor cursor = database.query(GarageDataOpenHelper.TABLE_MAINTENANCE_NAME, allMaintenanceColumns, null, null, null, null, null);
+
+        String response = "";
+        cursor.moveToFirst();
+        while (!cursor.isAfterLast()) {
+            response += cursor.getLong(0) + " " + cursor.getString(1) + " " + cursor.getString(2) + " " + cursor.getString(3) + System.getProperty("line.separator");
+            cursor.moveToNext();
+        }
+        cursor.close();
+
+        return response;
+    }
+
+    public String getMaintenance(long id) {
+        //query(boolean distinct, String table, String[] columns, String selection, String[] selectionArgs, String groupBy, String having, String orderBy, String limit)
+        Cursor cursor = database.query(GarageDataOpenHelper.TABLE_MAINTENANCE_NAME,
+                new String[]{GarageDataOpenHelper.COLUMN_MILEAGE, GarageDataOpenHelper.COLUMN_ACTION, GarageDataOpenHelper.COLUMN_ITEM}, GarageDataOpenHelper.COLUMN_VEHICLE_ID + "=\'" + id + "\'", null, null, null, GarageDataOpenHelper.COLUMN_MILEAGE + " ASC", null);
+
+        String response = "";
+        cursor.moveToFirst();
+        while (!cursor.isAfterLast()) {
+            response += cursor.getString(0) + " " + cursor.getString(1) + " " + cursor.getString(2) + System.getProperty("line.separator");
+            cursor.moveToNext();
+        }
+        cursor.close();
+
+        return response;
     }
 
 }

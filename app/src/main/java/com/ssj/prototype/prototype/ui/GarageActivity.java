@@ -5,7 +5,6 @@ import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -84,7 +83,7 @@ public class GarageActivity extends AppCompatActivity {
      */
     private void populateList() {
 
-        vehicles = garageDatasource.getAllEntries();
+        vehicles = garageDatasource.getAllVehicles();
         String[] vehicleStrings = new String[vehicles.size()];
 
         for (int i = 0; i < vehicles.size(); i++) {
@@ -100,11 +99,15 @@ public class GarageActivity extends AppCompatActivity {
      * @param position
      */
     private void clickOnVehicle(int position) {
-        populateList();
+        Intent intent = new Intent(this, VehicleActivity.class);
+        Bundle bundle = new Bundle();
+        bundle.putString("title", vehicles.get(position).toString());
+        bundle.putLong("id", vehicles.get(position).getId());
+        intent.putExtras(bundle);
+        startActivity(intent);
     }
 
     /**
-     *
      * @param position
      */
     private void longClickOnVehicle(int position) {

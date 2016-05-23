@@ -60,7 +60,8 @@ public class Vehicle {
 
     }
 
-    public Vehicle(String year, String make, String model, String style) {
+    public Vehicle(long id, String year, String make, String model, String style) {
+        this.id = id;
         this.year = year;
         this.make = make;
         this.model = model;

@@ -10,18 +10,23 @@ import android.util.Log;
  */
 public class GarageDataOpenHelper extends SQLiteOpenHelper {
 
-    public static final String GARAGE_TABLE = "garage";
+    private static final String DATABASE_NAME = "garage.db";
+    private static final int DATABASE_VERSION = 7;
 
+    public static final String TABLE_VEHICLE_NAME = "garage";
     public static final String COLUMN_ID = "_id";
     public static final String COLUMN_YEAR = "year";
     public static final String COLUMN_MAKE = "make";
     public static final String COLUMN_MODEL = "model";
     public static final String COLUMN_TRIM = "trim";
 
-    private static final String DATABASE_NAME = "garage.db";
-    private static final int DATABASE_VERSION = 5;
+    public static final String TABLE_MAINTENANCE_NAME = "maintenance";
+    public static final String COLUMN_VEHICLE_ID = "_id";
+    public static final String COLUMN_MILEAGE = "intervalMileage";
+    public static final String COLUMN_ACTION = "action";
+    public static final String COLUMN_ITEM = "item";
 
-    private static final String PROGRAM_TABLE_CREATE = "CREATE TABLE " + GARAGE_TABLE
+    private static final String TABLE_VEHICLE_CREATE = "CREATE TABLE " + TABLE_VEHICLE_NAME
             + " (" + COLUMN_ID + " integer primary key autoincrement, "
             + COLUMN_YEAR + " TEXT,"
             + COLUMN_MAKE + " TEXT,"
@@ -29,7 +34,16 @@ public class GarageDataOpenHelper extends SQLiteOpenHelper {
             + COLUMN_TRIM + " TEXT"
             + ");";
 
-    private static final String PROGRAM_TABLE_DROP = "DROP TABLE IF EXISTS " + GARAGE_TABLE;
+    private static final String TABLE_MAINTENANCE_CREATE = "CREATE TABLE " + TABLE_MAINTENANCE_NAME
+            + " (" + COLUMN_VEHICLE_ID + " integer"
+            + "FOREIGN KEY REFERENCES " + TABLE_VEHICLE_NAME + "(" + COLUMN_ID + "),"
+            + COLUMN_MILEAGE + " integer,"
+            + COLUMN_ACTION + " TEXT,"
+            + COLUMN_ITEM + " TEXT"
+            + ");";
+
+    private static final String TABLE_VEHICLE_DROP = "DROP TABLE IF EXISTS " + TABLE_VEHICLE_NAME;
+    private static final String TABLE_MAINTENANCE_DROP = "DROP TABLE IF EXISTS " + TABLE_MAINTENANCE_NAME;
 
     GarageDataOpenHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -37,12 +51,15 @@ public class GarageDataOpenHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        db.execSQL(PROGRAM_TABLE_CREATE);
+        Log.d("DB", TABLE_VEHICLE_CREATE);
+        db.execSQL(TABLE_VEHICLE_CREATE);
+        Log.d("DB", TABLE_MAINTENANCE_CREATE);
+        db.execSQL(TABLE_MAINTENANCE_CREATE);
     }
 
     public void drop(SQLiteDatabase db) {
-        db.execSQL(PROGRAM_TABLE_DROP);
-        db.execSQL(PROGRAM_TABLE_CREATE);
+        db.execSQL(TABLE_VEHICLE_DROP);
+        db.execSQL(TABLE_MAINTENANCE_DROP);
     }
 
     @Override
@@ -50,7 +67,7 @@ public class GarageDataOpenHelper extends SQLiteOpenHelper {
         Log.w(VehicleLocalDataOpenHelper.class.getName(),
                 "Upgrading database from version " + oldVersion + " to "
                         + newVersion + ", which will destroy all old data");
-        db.execSQL(PROGRAM_TABLE_DROP);
+        drop(db);
         onCreate(db);
     }
 }
