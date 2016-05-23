@@ -51,6 +51,20 @@
         android:layout_below="@+id/spinner3"
         android:visibility="invisible" />
 
+    <Spinner
+        android:id="@+id/spinner5"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/spinner4"
+        android:visibility="invisible" />
+
+    <Spinner
+        android:id="@+id/spinner6"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/spinner5"
+        android:visibility="invisible" />
+
     <Button
         android:id="@+id/confirm"
         style="@style/Base.Widget.AppCompat.Button.Borderless"
@@ -58,8 +72,8 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
-        android:onClick="confirm"
         android:enabled="false"
+        android:onClick="confirm"
         android:text="Confirm" />
 
     <Button

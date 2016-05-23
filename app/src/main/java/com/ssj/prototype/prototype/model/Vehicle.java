@@ -9,12 +9,11 @@ public class Vehicle {
 
     private long id;
     private String make;
-    private String make_niceName;
     private String model;
-    private String model_niceName;
     private String year;
     private String style;
-    private String string_niceName;
+    private String engine;
+    private String transmission;
 
     public long getId() {
         return id;
@@ -56,16 +55,34 @@ public class Vehicle {
         this.style = style;
     }
 
+    public String getEngine() {
+        return engine;
+    }
+
+    public void setEngine(String engine) {
+        this.engine = engine;
+    }
+
+    public String getTransmission() {
+        return transmission;
+    }
+
+    public void setTransmission(String transmission) {
+        this.transmission = transmission;
+    }
+
     public Vehicle() {
 
     }
 
-    public Vehicle(long id, String year, String make, String model, String style) {
+    public Vehicle(long id, String year, String make, String model, String style, String engine, String transmission) {
         this.id = id;
         this.year = year;
         this.make = make;
         this.model = model;
         this.style = style;
+        this.engine = engine;
+        this.transmission = transmission;
     }
 
     public Vehicle(Cursor cursor) {

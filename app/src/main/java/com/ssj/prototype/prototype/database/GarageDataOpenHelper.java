@@ -11,39 +11,51 @@ import android.util.Log;
 public class GarageDataOpenHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "garage.db";
-    private static final int DATABASE_VERSION = 7;
+    private static final int DATABASE_VERSION = 9;
 
-    public static final String TABLE_VEHICLE_NAME = "garage";
+    public static final String TABLE_NAME_GARAGE = "garage";
     public static final String COLUMN_ID = "_id";
     public static final String COLUMN_YEAR = "year";
     public static final String COLUMN_MAKE = "make";
     public static final String COLUMN_MODEL = "model";
-    public static final String COLUMN_TRIM = "trim";
+    public static final String COLUMN_STYLE = "style";
+    public static final String COLUMN_ENGINE = "engine";
+    public static final String COLUMN_TRANSMISSION = "transmission";
 
-    public static final String TABLE_MAINTENANCE_NAME = "maintenance";
+    public static final String TABLE_NAME_MAINTENANCE = "maintenance";
     public static final String COLUMN_VEHICLE_ID = "_id";
+    public static final String COLUMN_ENGINE_CODE = "engineCode";
+    public static final String COLUMN_TRANSMISSION_CODE = "transmissionCode";
     public static final String COLUMN_MILEAGE = "intervalMileage";
+    public static final String COLUMN_FREQUENCY = "frequency";
     public static final String COLUMN_ACTION = "action";
     public static final String COLUMN_ITEM = "item";
+    public static final String COLUMN_ITEM_DESCRIPTION = "itemDescription";
 
-    private static final String TABLE_VEHICLE_CREATE = "CREATE TABLE " + TABLE_VEHICLE_NAME
+    private static final String TABLE_CREATE_GARAGE = "CREATE TABLE " + TABLE_NAME_GARAGE
             + " (" + COLUMN_ID + " integer primary key autoincrement, "
             + COLUMN_YEAR + " TEXT,"
             + COLUMN_MAKE + " TEXT,"
             + COLUMN_MODEL + " TEXT,"
-            + COLUMN_TRIM + " TEXT"
+            + COLUMN_STYLE + " TEXT,"
+            + COLUMN_ENGINE + " TEXT,"
+            + COLUMN_TRANSMISSION + " TEXT"
             + ");";
 
-    private static final String TABLE_MAINTENANCE_CREATE = "CREATE TABLE " + TABLE_MAINTENANCE_NAME
+    private static final String TABLE_CREATE_MAINTENANCE = "CREATE TABLE " + TABLE_NAME_MAINTENANCE
             + " (" + COLUMN_VEHICLE_ID + " integer"
-            + "FOREIGN KEY REFERENCES " + TABLE_VEHICLE_NAME + "(" + COLUMN_ID + "),"
+            + "FOREIGN KEY REFERENCES " + TABLE_NAME_GARAGE + "(" + COLUMN_ID + "),"
+            + COLUMN_ENGINE_CODE + " TEXT,"
+            + COLUMN_TRANSMISSION_CODE + " TEXT,"
             + COLUMN_MILEAGE + " integer,"
+            + COLUMN_FREQUENCY + " integer,"
             + COLUMN_ACTION + " TEXT,"
-            + COLUMN_ITEM + " TEXT"
+            + COLUMN_ITEM + " TEXT,"
+            + COLUMN_ITEM_DESCRIPTION + " TEXT"
             + ");";
 
-    private static final String TABLE_VEHICLE_DROP = "DROP TABLE IF EXISTS " + TABLE_VEHICLE_NAME;
-    private static final String TABLE_MAINTENANCE_DROP = "DROP TABLE IF EXISTS " + TABLE_MAINTENANCE_NAME;
+    private static final String TABLE_DROP_GARAGE = "DROP TABLE IF EXISTS " + TABLE_NAME_GARAGE;
+    private static final String TABLE_DROP_MAINTENANCE = "DROP TABLE IF EXISTS " + TABLE_NAME_MAINTENANCE;
 
     GarageDataOpenHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -51,15 +63,15 @@ public class GarageDataOpenHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        Log.d("DB", TABLE_VEHICLE_CREATE);
-        db.execSQL(TABLE_VEHICLE_CREATE);
-        Log.d("DB", TABLE_MAINTENANCE_CREATE);
-        db.execSQL(TABLE_MAINTENANCE_CREATE);
+        Log.d("DB", TABLE_CREATE_GARAGE);
+        db.execSQL(TABLE_CREATE_GARAGE);
+        Log.d("DB", TABLE_CREATE_MAINTENANCE);
+        db.execSQL(TABLE_CREATE_MAINTENANCE);
     }
 
     public void drop(SQLiteDatabase db) {
-        db.execSQL(TABLE_VEHICLE_DROP);
-        db.execSQL(TABLE_MAINTENANCE_DROP);
+        db.execSQL(TABLE_DROP_GARAGE);
+        db.execSQL(TABLE_DROP_MAINTENANCE);
     }
 
     @Override

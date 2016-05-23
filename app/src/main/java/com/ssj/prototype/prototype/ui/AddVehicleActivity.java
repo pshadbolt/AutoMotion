@@ -26,12 +26,81 @@ import java.util.HashMap;
 
 public class AddVehicleActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
 
-    private GarageDataSource garageDatasSource;
     protected Spinner make;
     protected Spinner model;
     protected Spinner year;
     protected Spinner style;
+    protected Spinner engine;
+    protected Spinner transmission;
     private HashMap<Spinner, HashMap<String, String>> spinnerMap;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_addvehicle);
+
+        // Prepare Spinners
+        make = (Spinner) findViewById(R.id.spinner1);
+        model = (Spinner) findViewById(R.id.spinner2);
+        year = (Spinner) findViewById(R.id.spinner3);
+        style = (Spinner) findViewById(R.id.spinner4);
+        engine = (Spinner) findViewById(R.id.spinner5);
+        transmission = (Spinner) findViewById(R.id.spinner6);
+        make.setOnItemSelectedListener(this);
+        model.setOnItemSelectedListener(this);
+        year.setOnItemSelectedListener(this);
+        style.setOnItemSelectedListener(this);
+        engine.setOnItemSelectedListener(this);
+        transmission.setOnItemSelectedListener(this);
+
+        spinnerMap = new HashMap<Spinner, HashMap<String, String>>();
+
+        //Initiate populating the spinner values
+        query("makes?", "makes", "name", "niceName", make);
+    }
+
+    // Spinner Selector
+    public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
+        findViewById(R.id.confirm).setEnabled(false);
+
+        if (parent.getId() == make.getId()) {
+            model.setVisibility(View.GONE);
+            year.setVisibility(View.GONE);
+            style.setVisibility(View.GONE);
+            engine.setVisibility(View.GONE);
+            transmission.setVisibility(View.GONE);
+            query(lookup(make) + "/models?", "models", "name", "niceName", model);
+        }
+        if (parent.getId() == model.getId()) {
+            year.setVisibility(View.GONE);
+            style.setVisibility(View.GONE);
+            engine.setVisibility(View.GONE);
+            transmission.setVisibility(View.GONE);
+            query(lookup(make) + "/" + lookup(model) + "/years?", "years", "year", "year", year);
+        }
+        if (parent.getId() == year.getId()) {
+            style.setVisibility(View.GONE);
+            engine.setVisibility(View.GONE);
+            transmission.setVisibility(View.GONE);
+            query(lookup(make) + "/" + lookup(model) + "/" + year.getSelectedItem() + "/styles?", "styles", "name", "id", style);
+        }
+        if (parent.getId() == style.getId()) {
+            engine.setVisibility(View.GONE);
+            transmission.setVisibility(View.GONE);
+            query("styles/" + lookup(style) + "/engines?", "engines", "name", "id", engine);
+            query("styles/" + lookup(style) + "/transmissions?", "transmissions", "transmissionType", "id", transmission);
+        }
+        if (parent.getId() == engine.getId()) {
+            findViewById(R.id.confirm).setEnabled(true);
+        }
+        if (parent.getId() == transmission.getId()) {
+            findViewById(R.id.confirm).setEnabled(true);
+        }
+    }
+
+    public void onNothingSelected(AdapterView<?> parent) {
+        // Another interface callback
+    }
 
     //Query information
     private String endpointMaintenance = "https://api.edmunds.com/v1/api/maintenance/";
@@ -42,11 +111,11 @@ public class AddVehicleActivity extends AppCompatActivity implements AdapterView
     /**
      * Perform the call to the REST API and update spinner with retrieved values
      */
-    private class SpinnerLoader extends AsyncTask<String, Void, ArrayList<String>> {
+    private class SpinnerQuery extends AsyncTask<String, Void, ArrayList<String>> {
 
         private Spinner spinner;
 
-        public SpinnerLoader(Spinner spinner) {
+        public SpinnerQuery(Spinner spinner) {
             this.spinner = spinner;
         }
 
@@ -90,7 +159,6 @@ public class AddVehicleActivity extends AppCompatActivity implements AdapterView
                     for (int i = 0; i < responsesArray.length(); i++) {
                         JSONObject jsonObject1 = responsesArray.getJSONObject(i);
                         responses.add(jsonObject1.getString(params[2]));
-                        Log.d("MAP", "key:" + jsonObject1.getString(params[2]) + " value:" + jsonObject1.getString(params[3]));
                         //Store the mapping of niceName to name for lookup on next search
                         spinnerMap.get(spinner).put(jsonObject1.getString(params[2]), jsonObject1.getString(params[3]));
                     }
@@ -113,7 +181,12 @@ public class AddVehicleActivity extends AppCompatActivity implements AdapterView
             if (responses == null)
                 responses = new ArrayList<String>();
             spinner.setAdapter(new ArrayAdapter<String>(AddVehicleActivity.this, android.R.layout.simple_spinner_dropdown_item, responses));
-            spinner.setVisibility(View.VISIBLE);
+            if (responses.size() > 0)
+                spinner.setVisibility(View.VISIBLE);
+            if (responses.size() > 1)
+                spinner.setEnabled(true);
+            else
+                spinner.setEnabled(false);
             findViewById(R.id.loadingPanel).setVisibility(View.GONE);
         }
     }
@@ -121,16 +194,20 @@ public class AddVehicleActivity extends AppCompatActivity implements AdapterView
     /**
      *
      */
-    private class MaintenanceQuery extends AsyncTask<String, Void, ArrayList<String[]>> {
+    private class VehicleMaintenanceQuery extends AsyncTask<String, Void, ArrayList<String[]>> {
 
+        GarageDataSource garageDataSource;
         Vehicle vehicle;
 
-        public MaintenanceQuery(Vehicle vehicle) {
+        public VehicleMaintenanceQuery(GarageDataSource garageDataSource, Vehicle vehicle) {
+            this.garageDataSource = garageDataSource;
             this.vehicle = vehicle;
         }
 
         @Override
         protected void onPreExecute() {
+            findViewById(R.id.cancel).setEnabled(false);
+            findViewById(R.id.confirm).setEnabled(false);
             findViewById(R.id.loadingPanel).setVisibility(View.VISIBLE);
             super.onPreExecute();
         }
@@ -154,7 +231,7 @@ public class AddVehicleActivity extends AppCompatActivity implements AdapterView
                     bufferedReader.close();
                     Log.d("INFO", stringBuilder.toString());
 
-                    //Parse JSON response
+                    //Query style info to get yearid value to query maintenance info
                     String yearid = "";
                     JSONObject jsonObject = new JSONObject(stringBuilder.toString());
                     JSONArray responsesArray = jsonObject.getJSONArray("styles");
@@ -162,7 +239,6 @@ public class AddVehicleActivity extends AppCompatActivity implements AdapterView
                         JSONObject jsonObject1 = responsesArray.getJSONObject(i);
                         if (jsonObject1.getString("name").equals(params[1])) {
                             yearid = jsonObject1.getJSONObject("year").getString("id");
-                            Log.d("INFO", "year id:" + yearid);
                         }
                     }
                     url = new URL(endpointMaintenance + "actionrepository/findbymodelyearid?modelyearid=" + yearid + "&" + format + api_key);
@@ -183,7 +259,7 @@ public class AddVehicleActivity extends AppCompatActivity implements AdapterView
                     responsesArray = jsonObject.getJSONArray("actionHolder");
                     for (int i = 0; i < responsesArray.length(); i++) {
                         JSONObject jsonObject1 = responsesArray.getJSONObject(i);
-                        String[] entry = new String[]{jsonObject1.getString("intervalMileage"), jsonObject1.getString("action"), jsonObject1.getString("item")};
+                        String[] entry = new String[]{jsonObject1.getString("engineCode"), jsonObject1.getString("transmissionCode"), jsonObject1.getString("intervalMileage"), jsonObject1.getString("frequency"), jsonObject1.getString("action"), jsonObject1.getString("item"), jsonObject1.getString("itemDescription")};
                         response.add(entry);
                         Log.d("INFO", jsonObject1.getString("intervalMileage") + " " + jsonObject1.getString("action") + " " + jsonObject1.getString("item"));
                     }
@@ -205,9 +281,9 @@ public class AddVehicleActivity extends AppCompatActivity implements AdapterView
             super.onPostExecute(response);
             for (int i = 0; i < response.size(); i++) {
                 String[] entry = response.get(i);
-                garageDatasSource.insertMaintenance(vehicle, entry[0], entry[1], entry[2]);
+                garageDataSource.insertMaintenance(vehicle, entry[0], entry[1], entry[2], entry[3], entry[4], entry[5], entry[6]);
             }
-            findViewById(R.id.textView).setVisibility(View.VISIBLE);
+            garageDataSource.close();
             findViewById(R.id.loadingPanel).setVisibility(View.GONE);
             Toast.makeText(AddVehicleActivity.this, "Vehicle Added To Garage", Toast.LENGTH_LONG).show();
             //TODO Should finish be used?
@@ -215,71 +291,19 @@ public class AddVehicleActivity extends AppCompatActivity implements AdapterView
         }
     }
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_addvehicle);
-
-        // Create the database connections
-        garageDatasSource = new GarageDataSource(this);
-        garageDatasSource.open();
-
-        // Prepare Spinners
-        make = (Spinner) findViewById(R.id.spinner1);
-        model = (Spinner) findViewById(R.id.spinner2);
-        year = (Spinner) findViewById(R.id.spinner3);
-        style = (Spinner) findViewById(R.id.spinner4);
-        make.setOnItemSelectedListener(this);
-        model.setOnItemSelectedListener(this);
-        year.setOnItemSelectedListener(this);
-        style.setOnItemSelectedListener(this);
-
-        spinnerMap = new HashMap<Spinner, HashMap<String, String>>();
-
-        findViewById(R.id.confirm).setEnabled(false);
-        //Initiate populating the spinner values
-        query("makes?", "makes", "name", "niceName", make);
+    /**
+     * Return the niceName value used for searching REST API from display name value for a given spinner
+     */
+    public String lookup(Spinner spinner) {
+        return spinnerMap.get(spinner).get(spinner.getSelectedItem());
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        garageDatasSource.open();
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        garageDatasSource.close();
-    }
-
-    // Spinner Selector
-    public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
-
-        findViewById(R.id.confirm).setEnabled(false);
-
-        if (parent.getId() == R.id.spinner1) {
-            findViewById(R.id.spinner2).setVisibility(View.GONE);
-            findViewById(R.id.spinner3).setVisibility(View.GONE);
-            findViewById(R.id.spinner4).setVisibility(View.GONE);
-            query(lookup(make) + "/models?", "models", "name", "niceName", model);
-        }
-        if (parent.getId() == R.id.spinner2) {
-            findViewById(R.id.spinner3).setVisibility(View.GONE);
-            findViewById(R.id.spinner4).setVisibility(View.GONE);
-            query(lookup(make) + "/" + lookup(model) + "/years?", "years", "year", "year", year);
-        }
-        if (parent.getId() == R.id.spinner3) {
-            findViewById(R.id.spinner4).setVisibility(View.GONE);
-            query(lookup(make) + "/" + lookup(model) + "/" + year.getSelectedItem() + "/styles?", "styles", "name", "name", style);
-        }
-        if (parent.getId() == R.id.spinner4) {
-            findViewById(R.id.confirm).setEnabled(true);
-        }
-    }
-
-    public void onNothingSelected(AdapterView<?> parent) {
-        // Another interface callback
+    /**
+     * Execute the query to populate a spinner value
+     */
+    public void query(String query, String array, String name, String niceName, Spinner spinner) {
+        SpinnerQuery spinnerQuery = new SpinnerQuery(spinner);
+        spinnerQuery.execute(new String[]{query, array, name, niceName});
     }
 
     /**
@@ -294,31 +318,12 @@ public class AddVehicleActivity extends AppCompatActivity implements AdapterView
      * Confirm Button
      */
     public void confirm(View view) {
-        Vehicle vehicle = garageDatasSource.insertVehicle((String) year.getSelectedItem(), (String) make.getSelectedItem(), (String) model.getSelectedItem(), (String) style.getSelectedItem());
-        MaintenanceQuery maintenanceQuery = new MaintenanceQuery(vehicle);
-        maintenanceQuery.execute(new String[]{lookup(make) + "/" + lookup(model) + "/" + year.getSelectedItem() + "/styles?", lookup(style)});
-    }
+        // Create the database connections
+        GarageDataSource garageDataSource = new GarageDataSource(this);
+        garageDataSource.open();
 
-    /**
-     * Return the niceName value used for searching REST API from display name value for a given spinner
-     */
-    public String lookup(Spinner spinner) {
-        String lookup = spinnerMap.get(spinner).get(spinner.getSelectedItem());
-        //Log.d("LOOKUP", (String) spinner.getSelectedItem() + " returned:" + lookup);
-        return lookup;
-    }
-
-    /**
-     * @param query
-     * @param array
-     * @param name
-     * @param niceName
-     * @param spinner
-     */
-    public void query(String query, String array, String name, String niceName, Spinner spinner) {
-        findViewById(R.id.textView).setVisibility(View.GONE);
-        //Log.d("QUERY", query + " " + array + " " + name + " " + niceName);
-        SpinnerLoader spinnerLoader = new SpinnerLoader(spinner);
-        spinnerLoader.execute(new String[]{query, array, name, niceName});
+        Vehicle vehicle = garageDataSource.insertVehicle((String) year.getSelectedItem(), (String) make.getSelectedItem(), (String) model.getSelectedItem(), (String) style.getSelectedItem(), (String) engine.getSelectedItem(), (String) transmission.getSelectedItem());
+        VehicleMaintenanceQuery vehicleMaintenanceQuery = new VehicleMaintenanceQuery(garageDataSource, vehicle);
+        vehicleMaintenanceQuery.execute(new String[]{lookup(make) + "/" + lookup(model) + "/" + year.getSelectedItem() + "/styles?", (String) style.getSelectedItem()});
     }
 }
