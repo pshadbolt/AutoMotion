@@ -1,11 +1,8 @@
 package com.ssj.prototype.prototype.ui;
 
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.view.View;
 import android.widget.TextView;
 
 import com.ssj.prototype.prototype.R;
@@ -14,6 +11,7 @@ import com.ssj.prototype.prototype.database.GarageDataSource;
 public class VehicleActivity extends AppCompatActivity {
 
     GarageDataSource garageDataSource;
+    long vehicleID;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,9 +25,12 @@ public class VehicleActivity extends AppCompatActivity {
         //Set the title
         String[] title = this.getIntent().getExtras().getString("title").split(",");
         setTitle(title[0] + " " + title[1] + " " + title[2]);
+        vehicleID = this.getIntent().getExtras().getLong("id");
         garageDataSource = new GarageDataSource(this);
         garageDataSource.open();
-        ((TextView) findViewById(R.id.textView)).setText(garageDataSource.getMaintenance(this.getIntent().getExtras().getLong("id")));
+
+        ((TextView) findViewById(R.id.textView1)).setText(garageDataSource.getMileage(vehicleID));
+        ((TextView) findViewById(R.id.textView2)).setText(garageDataSource.getMaintenance(vehicleID));
     }
 
     @Override

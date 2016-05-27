@@ -7,6 +7,8 @@ import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Toast;
 
@@ -26,13 +28,22 @@ import java.util.HashMap;
 
 public class AddVehicleActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
 
+    private int state = 1;
+
     protected Spinner make;
     protected Spinner model;
     protected Spinner year;
     protected Spinner style;
     protected Spinner engine;
     protected Spinner transmission;
+
     private HashMap<Spinner, HashMap<String, String>> spinnerMap;
+
+    protected EditText mileageTotal;
+    protected EditText mileageAnnual;
+
+    protected Button cancel;
+    protected Button confirm;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,6 +65,12 @@ public class AddVehicleActivity extends AppCompatActivity implements AdapterView
         transmission.setOnItemSelectedListener(this);
 
         spinnerMap = new HashMap<Spinner, HashMap<String, String>>();
+
+        mileageTotal = (EditText) findViewById(R.id.editText1);
+        mileageAnnual = (EditText) findViewById(R.id.editText2);
+
+        cancel = (Button) findViewById(R.id.cancel);
+        confirm = (Button) findViewById(R.id.confirm);
 
         //Initiate populating the spinner values
         query("makes?", "makes", "name", "niceName", make);
@@ -259,11 +276,29 @@ public class AddVehicleActivity extends AppCompatActivity implements AdapterView
                     responsesArray = jsonObject.getJSONArray("actionHolder");
                     for (int i = 0; i < responsesArray.length(); i++) {
                         JSONObject jsonObject1 = responsesArray.getJSONObject(i);
-                        String[] entry = new String[]{jsonObject1.getString("engineCode"), jsonObject1.getString("transmissionCode"), jsonObject1.getString("intervalMileage"), jsonObject1.getString("frequency"), jsonObject1.getString("action"), jsonObject1.getString("item"), jsonObject1.getString("itemDescription")};
-                        response.add(entry);
-                        Log.d("INFO", jsonObject1.getString("intervalMileage") + " " + jsonObject1.getString("action") + " " + jsonObject1.getString("item"));
+                        String engineCode = "";
+                        String transmissionCode = "";
+                        String intervalMileage = "0";
+                        String frequency = "0";
+                        String action = "";
+                        String item = "";
+                        String itemDescription = "";
+                        if (jsonObject1.has("engineCode"))
+                            engineCode = jsonObject1.getString("engineCode");
+                        if (jsonObject1.has("transmissionCode"))
+                            transmissionCode = jsonObject1.getString("transmissionCode");
+                        if (jsonObject1.has("intervalMileage"))
+                            intervalMileage = jsonObject1.getString("intervalMileage");
+                        if (jsonObject1.has("frequency"))
+                            frequency = jsonObject1.getString("frequency");
+                        if (jsonObject1.has("action"))
+                            action = jsonObject1.getString("action");
+                        if (jsonObject1.has("item"))
+                            item = jsonObject1.getString("item");
+                        if (jsonObject1.has("itemDescription"))
+                            itemDescription = jsonObject1.getString("itemDescription");
+                        response.add(new String[]{engineCode, transmissionCode, intervalMileage, frequency, action, item, itemDescription});
                     }
-
                     return response;
                 } finally {
                     urlConnection.disconnect();
@@ -310,20 +345,50 @@ public class AddVehicleActivity extends AppCompatActivity implements AdapterView
      * Cancel Button
      */
     public void cancel(View view) {
-        //TODO Should finish be used?
-        finish();
+
+        if (state == 1) {
+            //TODO Should finish be used?
+            finish();
+        } else if (state == 2) {
+            state = 1;
+            make.setVisibility(View.VISIBLE);
+            model.setVisibility(View.VISIBLE);
+            year.setVisibility(View.VISIBLE);
+            style.setVisibility(View.VISIBLE);
+            engine.setVisibility(View.VISIBLE);
+            transmission.setVisibility(View.VISIBLE);
+            mileageTotal.setVisibility(View.GONE);
+            mileageAnnual.setVisibility(View.GONE);
+            cancel.setText("CANCEL");
+            confirm.setText("NEXT");
+        }
     }
 
     /**
      * Confirm Button
      */
     public void confirm(View view) {
-        // Create the database connections
-        GarageDataSource garageDataSource = new GarageDataSource(this);
-        garageDataSource.open();
 
-        Vehicle vehicle = garageDataSource.insertVehicle((String) year.getSelectedItem(), (String) make.getSelectedItem(), (String) model.getSelectedItem(), (String) style.getSelectedItem(), (String) engine.getSelectedItem(), (String) transmission.getSelectedItem());
-        VehicleMaintenanceQuery vehicleMaintenanceQuery = new VehicleMaintenanceQuery(garageDataSource, vehicle);
-        vehicleMaintenanceQuery.execute(new String[]{lookup(make) + "/" + lookup(model) + "/" + year.getSelectedItem() + "/styles?", (String) style.getSelectedItem()});
+        if (state == 1) {
+            state = 2;
+            make.setVisibility(View.GONE);
+            model.setVisibility(View.GONE);
+            year.setVisibility(View.GONE);
+            style.setVisibility(View.GONE);
+            engine.setVisibility(View.GONE);
+            transmission.setVisibility(View.GONE);
+            mileageTotal.setVisibility(View.VISIBLE);
+            mileageAnnual.setVisibility(View.VISIBLE);
+            cancel.setText("BACK");
+            confirm.setText("CONFIRM");
+        } else if (state == 2) {
+            // Create the database connections
+            GarageDataSource garageDataSource = new GarageDataSource(this);
+            garageDataSource.open();
+
+            Vehicle vehicle = garageDataSource.insertVehicle((String) year.getSelectedItem(), (String) make.getSelectedItem(), (String) model.getSelectedItem(), (String) style.getSelectedItem(), (String) engine.getSelectedItem(), (String) transmission.getSelectedItem(), mileageTotal.getText().toString(), mileageAnnual.getText().toString());
+            VehicleMaintenanceQuery vehicleMaintenanceQuery = new VehicleMaintenanceQuery(garageDataSource, vehicle);
+            vehicleMaintenanceQuery.execute(new String[]{lookup(make) + "/" + lookup(model) + "/" + year.getSelectedItem() + "/styles?", (String) style.getSelectedItem()});
+        }
     }
 }

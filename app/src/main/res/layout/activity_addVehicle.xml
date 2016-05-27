@@ -23,6 +23,25 @@
             android:indeterminate="true" />
     </RelativeLayout>
 
+    <EditText
+        android:id="@+id/editText1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Total Mileage"
+        android:inputType="number"
+        android:singleLine="true"
+        android:visibility="invisible" />
+
+    <EditText
+        android:id="@+id/editText2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/editText1"
+        android:hint="Yearly Mileage"
+        android:inputType="number"
+        android:singleLine="true"
+        android:visibility="invisible" />
+
     <Spinner
         android:id="@+id/spinner1"
         android:layout_width="fill_parent"
@@ -74,7 +93,7 @@
         android:layout_alignParentRight="true"
         android:enabled="false"
         android:onClick="confirm"
-        android:text="Confirm" />
+        android:text="Next" />
 
     <Button
         android:id="@+id/cancel"

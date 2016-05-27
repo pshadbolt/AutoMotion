@@ -20,7 +20,7 @@ public class GarageDataSource {
     private SQLiteDatabase database;
     private GarageDataOpenHelper dbHelper;
     private String[] allGarageColumns = {GarageDataOpenHelper.COLUMN_ID, GarageDataOpenHelper.COLUMN_YEAR, GarageDataOpenHelper.COLUMN_MAKE, GarageDataOpenHelper.COLUMN_MODEL, GarageDataOpenHelper.COLUMN_STYLE};
-    private String[] allMaintenanceColumns = {GarageDataOpenHelper.COLUMN_VEHICLE_ID, GarageDataOpenHelper.COLUMN_ENGINE_CODE, GarageDataOpenHelper.COLUMN_TRANSMISSION_CODE, GarageDataOpenHelper.COLUMN_FREQUENCY, GarageDataOpenHelper.COLUMN_MILEAGE, GarageDataOpenHelper.COLUMN_ACTION, GarageDataOpenHelper.COLUMN_ITEM, GarageDataOpenHelper.COLUMN_ITEM_DESCRIPTION};
+    private String[] allMaintenanceColumns = {GarageDataOpenHelper.COLUMN_VEHICLE_ID, GarageDataOpenHelper.COLUMN_ENGINE_CODE, GarageDataOpenHelper.COLUMN_TRANSMISSION_CODE, GarageDataOpenHelper.COLUMN_FREQUENCY, GarageDataOpenHelper.COLUMN_INTERVAL_MILEAGE, GarageDataOpenHelper.COLUMN_ACTION, GarageDataOpenHelper.COLUMN_ITEM, GarageDataOpenHelper.COLUMN_ITEM_DESCRIPTION};
 
     public GarageDataSource(Context context) {
         dbHelper = new GarageDataOpenHelper(context);
@@ -38,7 +38,7 @@ public class GarageDataSource {
         dbHelper.drop(database);
     }
 
-    public Vehicle insertVehicle(String year, String make, String model, String style, String engine, String transmission) {
+    public Vehicle insertVehicle(String year, String make, String model, String style, String engine, String transmission, String mileageTotal, String mileageAnnual) {
         ContentValues values = new ContentValues();
         values.put(GarageDataOpenHelper.COLUMN_YEAR, year);
         values.put(GarageDataOpenHelper.COLUMN_MAKE, make);
@@ -46,6 +46,8 @@ public class GarageDataSource {
         values.put(GarageDataOpenHelper.COLUMN_STYLE, style);
         values.put(GarageDataOpenHelper.COLUMN_ENGINE, engine);
         values.put(GarageDataOpenHelper.COLUMN_TRANSMISSION, transmission);
+        values.put(GarageDataOpenHelper.COLUMN_MILEAGE_TOTAL, Integer.parseInt(mileageTotal));
+        values.put(GarageDataOpenHelper.COLUMN_MILEAGE_ANNUAL, Integer.parseInt(mileageAnnual));
         Log.d("INSERT", values.toString());
         long id = database.insert(GarageDataOpenHelper.TABLE_NAME_GARAGE, null, values);
         return new Vehicle(id, year, make, model, style, engine, transmission);
@@ -56,7 +58,7 @@ public class GarageDataSource {
         values.put(GarageDataOpenHelper.COLUMN_VEHICLE_ID, vehicle.getId());
         values.put(GarageDataOpenHelper.COLUMN_ENGINE_CODE, engineCode);
         values.put(GarageDataOpenHelper.COLUMN_TRANSMISSION_CODE, transmissionCode);
-        values.put(GarageDataOpenHelper.COLUMN_MILEAGE, Integer.parseInt(mileage));
+        values.put(GarageDataOpenHelper.COLUMN_INTERVAL_MILEAGE, Integer.parseInt(mileage));
         values.put(GarageDataOpenHelper.COLUMN_FREQUENCY, Integer.parseInt(frequency));
         values.put(GarageDataOpenHelper.COLUMN_ACTION, action);
         values.put(GarageDataOpenHelper.COLUMN_ITEM, item);
@@ -100,13 +102,31 @@ public class GarageDataSource {
         return response;
     }
 
+    public String getMileage(long id) {
+
+        //query(boolean distinct, String table, String[] columns, String selection, String[] selectionArgs, String groupBy, String having, String orderBy, String limit)
+        Cursor cursor = database.query(GarageDataOpenHelper.TABLE_NAME_GARAGE,
+                new String[]{GarageDataOpenHelper.COLUMN_MILEAGE_TOTAL, GarageDataOpenHelper.COLUMN_MILEAGE_ANNUAL}, GarageDataOpenHelper.COLUMN_VEHICLE_ID + "=\'" + id + "\'", null, null, null, null);
+
+        String response = "";
+        cursor.moveToFirst();
+        while (!cursor.isAfterLast()) {
+            response += "MILEAGE: "+cursor.getInt(0) + System.getProperty("line.separator");
+            response += "ANNUAL: "+cursor.getInt(1) + System.getProperty("line.separator");
+            cursor.moveToNext();
+        }
+        cursor.close();
+
+        return response;
+    }
+
     public String getMaintenance(long id) {
 
         //Query engine and transmission type of vehicle ID
 
         //query(boolean distinct, String table, String[] columns, String selection, String[] selectionArgs, String groupBy, String having, String orderBy, String limit)
         Cursor cursor = database.query(GarageDataOpenHelper.TABLE_NAME_MAINTENANCE,
-                allMaintenanceColumns, GarageDataOpenHelper.COLUMN_VEHICLE_ID + "=\'" + id + "\'", null, null, null, GarageDataOpenHelper.COLUMN_MILEAGE + " ASC", null);
+                allMaintenanceColumns, GarageDataOpenHelper.COLUMN_VEHICLE_ID + "=\'" + id + "\'", null, null, null, GarageDataOpenHelper.COLUMN_INTERVAL_MILEAGE + " ASC", null);
 
         String response = "";
         cursor.moveToFirst();

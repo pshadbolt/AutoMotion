@@ -12,12 +12,18 @@
     tools:context="com.ssj.prototype.prototype.ui.VehicleActivity"
     tools:showIn="@layout/activity_vehicle">
 
+    <TextView
+        android:id="@+id/textView1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
     <ScrollView
+        android:layout_below="@+id/textView1"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
         <TextView
-            android:id="@+id/textView"
+            android:id="@+id/textView2"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
     </ScrollView>
