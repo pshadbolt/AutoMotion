@@ -4,7 +4,7 @@
     <string name="title_activity_addvehicle">Add New Vehicle</string>
     <string name="title_activity_garage">Garage</string>
     <string name="title_activity_vehicle">VehicleActivity</string>
-    <string name="title_activity_dash_board">DashBoardActivity</string>
+    <string name="title_activity_dash_board">AutoMotion</string>
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>

@@ -10,6 +10,9 @@ import android.util.Log;
 import com.ssj.prototype.prototype.model.Vehicle;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Created by shadbolt on 5/14/2016.
@@ -19,7 +22,7 @@ public class GarageDataSource {
     // Database fields
     private SQLiteDatabase database;
     private GarageDataOpenHelper dbHelper;
-    private String[] allGarageColumns = {GarageDataOpenHelper.COLUMN_ID, GarageDataOpenHelper.COLUMN_YEAR, GarageDataOpenHelper.COLUMN_MAKE, GarageDataOpenHelper.COLUMN_MODEL, GarageDataOpenHelper.COLUMN_STYLE};
+    private String[] allGarageColumns = {GarageDataOpenHelper.COLUMN_ID, GarageDataOpenHelper.COLUMN_YEAR, GarageDataOpenHelper.COLUMN_MAKE, GarageDataOpenHelper.COLUMN_MODEL, GarageDataOpenHelper.COLUMN_STYLE, GarageDataOpenHelper.COLUMN_ENGINE, GarageDataOpenHelper.COLUMN_TRANSMISSION, GarageDataOpenHelper.COLUMN_MILEAGE_TOTAL, GarageDataOpenHelper.COLUMN_MILEAGE_ANNUAL};
     private String[] allMaintenanceColumns = {GarageDataOpenHelper.COLUMN_VEHICLE_ID, GarageDataOpenHelper.COLUMN_ENGINE_CODE, GarageDataOpenHelper.COLUMN_TRANSMISSION_CODE, GarageDataOpenHelper.COLUMN_FREQUENCY, GarageDataOpenHelper.COLUMN_INTERVAL_MILEAGE, GarageDataOpenHelper.COLUMN_ACTION, GarageDataOpenHelper.COLUMN_ITEM, GarageDataOpenHelper.COLUMN_ITEM_DESCRIPTION};
 
     public GarageDataSource(Context context) {
@@ -39,6 +42,13 @@ public class GarageDataSource {
     }
 
     public Vehicle insertVehicle(String year, String make, String model, String style, String engine, String transmission, String mileageTotal, String mileageAnnual) {
+
+        //Error catching for empty fields
+        if (mileageTotal.length() == 0)
+            mileageTotal = "0";
+        if (mileageAnnual.length() == 0)
+            mileageAnnual = "0";
+
         ContentValues values = new ContentValues();
         values.put(GarageDataOpenHelper.COLUMN_YEAR, year);
         values.put(GarageDataOpenHelper.COLUMN_MAKE, make);
@@ -73,10 +83,9 @@ public class GarageDataSource {
     }
 
     public ArrayList<Vehicle> getAllVehicles() {
-        Cursor cursor = database.query(GarageDataOpenHelper.TABLE_NAME_GARAGE, allGarageColumns, null, null, null, null, null);
-
         ArrayList<Vehicle> vehicles = new ArrayList<Vehicle>();
 
+        Cursor cursor = database.query(GarageDataOpenHelper.TABLE_NAME_GARAGE, allGarageColumns, null, null, null, null, null);
         cursor.moveToFirst();
         while (!cursor.isAfterLast()) {
             Vehicle vehicle = new Vehicle(cursor);
@@ -84,51 +93,44 @@ public class GarageDataSource {
             cursor.moveToNext();
         }
         cursor.close();
-
         return vehicles;
     }
 
     public String getAllMaintenance() {
-        Cursor cursor = database.query(GarageDataOpenHelper.TABLE_NAME_MAINTENANCE, allMaintenanceColumns, null, null, null, null, null);
-
         String response = "";
+
+        Cursor cursor = database.query(GarageDataOpenHelper.TABLE_NAME_MAINTENANCE, allMaintenanceColumns, null, null, null, null, null);
         cursor.moveToFirst();
         while (!cursor.isAfterLast()) {
             response += cursor.getLong(0) + " " + cursor.getString(1) + " " + cursor.getString(2) + " " + cursor.getString(3) + System.getProperty("line.separator");
             cursor.moveToNext();
         }
         cursor.close();
-
         return response;
     }
 
     public String getMileage(long id) {
+        String response = "";
 
         //query(boolean distinct, String table, String[] columns, String selection, String[] selectionArgs, String groupBy, String having, String orderBy, String limit)
-        Cursor cursor = database.query(GarageDataOpenHelper.TABLE_NAME_GARAGE,
-                new String[]{GarageDataOpenHelper.COLUMN_MILEAGE_TOTAL, GarageDataOpenHelper.COLUMN_MILEAGE_ANNUAL}, GarageDataOpenHelper.COLUMN_VEHICLE_ID + "=\'" + id + "\'", null, null, null, null);
-
-        String response = "";
+        Cursor cursor = database.query(GarageDataOpenHelper.TABLE_NAME_GARAGE, new String[]{GarageDataOpenHelper.COLUMN_MILEAGE_TOTAL, GarageDataOpenHelper.COLUMN_MILEAGE_ANNUAL}, GarageDataOpenHelper.COLUMN_VEHICLE_ID + "=\'" + id + "\'", null, null, null, null);
         cursor.moveToFirst();
         while (!cursor.isAfterLast()) {
-            response += "MILEAGE: "+cursor.getInt(0) + System.getProperty("line.separator");
-            response += "ANNUAL: "+cursor.getInt(1) + System.getProperty("line.separator");
+            response += "MILEAGE: " + cursor.getInt(0) + System.getProperty("line.separator");
+            response += "ANNUAL: " + cursor.getInt(1) + System.getProperty("line.separator");
             cursor.moveToNext();
         }
         cursor.close();
-
         return response;
     }
 
     public String getMaintenance(long id) {
+        String response = "";
 
         //Query engine and transmission type of vehicle ID
 
         //query(boolean distinct, String table, String[] columns, String selection, String[] selectionArgs, String groupBy, String having, String orderBy, String limit)
-        Cursor cursor = database.query(GarageDataOpenHelper.TABLE_NAME_MAINTENANCE,
-                allMaintenanceColumns, GarageDataOpenHelper.COLUMN_VEHICLE_ID + "=\'" + id + "\'", null, null, null, GarageDataOpenHelper.COLUMN_INTERVAL_MILEAGE + " ASC", null);
-
-        String response = "";
+        Cursor cursor = database.query(GarageDataOpenHelper.TABLE_NAME_MAINTENANCE, allMaintenanceColumns, GarageDataOpenHelper.COLUMN_VEHICLE_ID + "=\'" + id + "\'", null, null, null, GarageDataOpenHelper.COLUMN_INTERVAL_MILEAGE + " ASC", null);
         cursor.moveToFirst();
         while (!cursor.isAfterLast()) {
             response += "MILEAGE:\t\t\t\t\t\t" + cursor.getString(4) + System.getProperty("line.separator");
@@ -140,8 +142,62 @@ public class GarageDataSource {
             cursor.moveToNext();
         }
         cursor.close();
-
         return response;
     }
 
+    public String[] getMaintenanceActivities() {
+        ArrayList<String> responses = new ArrayList<>();
+        ArrayList<Integer> sort = new ArrayList<>();
+
+        ArrayList<Vehicle> vehicles = getAllVehicles();
+
+        Log.d("INFO", "VEHICLES =" + vehicles.size());
+        for (Vehicle vehicle : vehicles) {
+
+            //Set the mileage threshold to search
+            int low = vehicle.getMileageTotal() - 10000;
+            int high = vehicle.getMileageTotal() + 50000;
+
+            Cursor cursor = database.query(GarageDataOpenHelper.TABLE_NAME_MAINTENANCE, allMaintenanceColumns, GarageDataOpenHelper.COLUMN_INTERVAL_MILEAGE + " between " + low + " and " + high + " and " + GarageDataOpenHelper.COLUMN_VEHICLE_ID + "=\'" + vehicle.getId() + "\'", null, null, null, null);
+            cursor.moveToFirst();
+            int count = 0;
+            while (!cursor.isAfterLast()) {
+                count++;
+                int intervalMileage = cursor.getInt(4);
+                int dueIn = intervalMileage - vehicle.getMileageTotal();
+                String action = cursor.getString(5);
+                String item = cursor.getString(6);
+
+                //Build the response string with , delimiter
+                String response = action + ": " + item + ",,";
+                response += vehicle.getYear() + " " + vehicle.getMake() + " " + vehicle.getModel() + ",,";
+                if (dueIn < 0)
+                    response += "OVERDUE:\t\t\t" + (dueIn * -1);
+                else
+                    response += "DUE:\t\t\t\t\t\t" + dueIn;
+                cursor.moveToNext();
+
+                Log.d("INFO", response);
+
+                //Sort based on dueIn metric
+                boolean added = false;
+                for (int i = 0; i < responses.size(); i++) {
+                    if (sort.get(i) < dueIn) continue;
+                    Log.d("ADDED", Integer.toString(i));
+                    sort.add(i, dueIn);
+                    responses.add(i, response);
+                    added = true;
+                    break;
+                }
+                if (!added) {
+                    Log.d("ADDED", "AT END");
+                    sort.add(dueIn);
+                    responses.add(response);
+                }
+            }
+            cursor.close();
+            Log.d("INFO", Integer.toString(count));
+        }
+        return responses.toArray(new String[responses.size()]);
+    }
 }

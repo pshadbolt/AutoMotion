@@ -21,8 +21,6 @@ import java.util.ArrayList;
 public class GarageActivity extends AppCompatActivity {
 
     private GarageDataSource garageDatasource;
-    private ListView listView;
-    private ArrayAdapter<String> adapter;
     private ArrayList<Vehicle> vehicles;
 
     @Override
@@ -30,16 +28,18 @@ public class GarageActivity extends AppCompatActivity {
 
         // Create the database connections
         garageDatasource = new GarageDataSource(this);
-        garageDatasource.open();
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_garage);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
         populateList();
 
         // Add the listView listener
+        ListView listView = (ListView) findViewById(R.id.listView);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -67,32 +67,13 @@ public class GarageActivity extends AppCompatActivity {
     @Override
     protected void onRestart() {
         super.onRestart();
-        garageDatasource.open();
         populateList();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        garageDatasource.open();
         populateList();
-    }
-
-    /**
-     *
-     */
-    private void populateList() {
-
-        vehicles = garageDatasource.getAllVehicles();
-        String[] vehicleStrings = new String[vehicles.size()];
-
-        for (int i = 0; i < vehicles.size(); i++) {
-            vehicleStrings[i] = vehicles.get(i).toString();
-        }
-
-        adapter = new GarageListArrayAdapter(this, vehicleStrings, null);
-        listView = (ListView) findViewById(R.id.listView);
-        listView.setAdapter(adapter);
     }
 
     /**
@@ -111,14 +92,25 @@ public class GarageActivity extends AppCompatActivity {
      * @param position
      */
     private void longClickOnVehicle(int position) {
+        garageDatasource.open();
         garageDatasource.deleteVehicle(vehicles.get(position).getId());
+        garageDatasource.close();
         Toast.makeText(this, "Vehicle Deleted From Garage", Toast.LENGTH_LONG).show();
         populateList();
     }
 
-    @Override
-    protected void onStop() {
+    /**
+     *
+     */
+    private void populateList() {
+        garageDatasource.open();
+        vehicles = garageDatasource.getAllVehicles();
         garageDatasource.close();
-        super.onStop();
+        String[] vehicleStrings = new String[vehicles.size()];
+
+        for (int i = 0; i < vehicles.size(); i++) {
+            vehicleStrings[i] = vehicles.get(i).toString();
+        }
+        ((ListView) findViewById(R.id.listView)).setAdapter(new GarageListArrayAdapter(this, vehicleStrings));
     }
 }

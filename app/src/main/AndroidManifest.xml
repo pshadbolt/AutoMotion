@@ -13,16 +13,16 @@
         <activity
             android:name=".ui.MainActivity"
             android:label="@string/title_activity_main">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
 
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
         </activity>
         <activity
             android:name=".ui.GarageActivity"
             android:label="@string/title_activity_garage"
-            android:theme="@style/AppTheme.NoActionBar" />
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.ssj.prototype.prototype.ui.DashBoardActivity" />
+        </activity>
         <activity
             android:name=".ui.AddVehicleActivity"
             android:label="@string/title_activity_addvehicle" />
@@ -44,7 +44,13 @@
         <activity
             android:name=".ui.DashBoardActivity"
             android:label="@string/title_activity_dash_board"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
+            android:theme="@style/AppTheme.NoActionBar">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
     </application>
 
 </manifest>

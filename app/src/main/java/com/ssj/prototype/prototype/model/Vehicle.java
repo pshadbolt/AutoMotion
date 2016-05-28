@@ -14,6 +14,8 @@ public class Vehicle {
     private String style;
     private String engine;
     private String transmission;
+    private int mileageTotal;
+    private int mileageAnnual;
 
     public long getId() {
         return id;
@@ -71,6 +73,23 @@ public class Vehicle {
         this.transmission = transmission;
     }
 
+
+    public int getMileageTotal() {
+        return mileageTotal;
+    }
+
+    public void setMileageTotal(int mileageTotal) {
+        this.mileageTotal = mileageTotal;
+    }
+
+    public int getMileageAnnual() {
+        return mileageAnnual;
+    }
+
+    public void setMileageAnnual(int mileageAnnual) {
+        this.mileageAnnual = mileageAnnual;
+    }
+
     public Vehicle() {
 
     }
@@ -91,6 +110,10 @@ public class Vehicle {
         this.make = cursor.getString(2);
         this.model = cursor.getString(3);
         this.style = cursor.getString(4);
+        this.engine = cursor.getString(5);
+        this.transmission = cursor.getString(6);
+        this.mileageTotal = cursor.getInt(7);
+        this.mileageAnnual = cursor.getInt(8);
     }
 
     public String toString() {
