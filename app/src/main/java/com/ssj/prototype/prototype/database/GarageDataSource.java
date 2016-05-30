@@ -150,19 +150,16 @@ public class GarageDataSource {
         ArrayList<Integer> sort = new ArrayList<>();
 
         ArrayList<Vehicle> vehicles = getAllVehicles();
-
-        Log.d("INFO", "VEHICLES =" + vehicles.size());
         for (Vehicle vehicle : vehicles) {
 
             //Set the mileage threshold to search
             int low = vehicle.getMileageTotal() - 10000;
             int high = vehicle.getMileageTotal() + 50000;
 
-            Cursor cursor = database.query(GarageDataOpenHelper.TABLE_NAME_MAINTENANCE, allMaintenanceColumns, GarageDataOpenHelper.COLUMN_INTERVAL_MILEAGE + " between " + low + " and " + high + " and " + GarageDataOpenHelper.COLUMN_VEHICLE_ID + "=\'" + vehicle.getId() + "\'", null, null, null, null);
+            Cursor cursor = database.query(GarageDataOpenHelper.TABLE_NAME_MAINTENANCE, allMaintenanceColumns, GarageDataOpenHelper.COLUMN_INTERVAL_MILEAGE + " between " + low + " and " + high + " and " + GarageDataOpenHelper.COLUMN_VEHICLE_ID + "=\'" + vehicle.getId() + "\'" + " and " + GarageDataOpenHelper.COLUMN_ENGINE_CODE + "=\'" + vehicle.getEngine() + "\'", null, null, null, null);
             cursor.moveToFirst();
-            int count = 0;
             while (!cursor.isAfterLast()) {
-                count++;
+
                 int intervalMileage = cursor.getInt(4);
                 int dueIn = intervalMileage - vehicle.getMileageTotal();
                 String action = cursor.getString(5);
@@ -177,26 +174,21 @@ public class GarageDataSource {
                     response += "DUE:\t\t\t\t\t\t" + dueIn;
                 cursor.moveToNext();
 
-                Log.d("INFO", response);
-
                 //Sort based on dueIn metric
                 boolean added = false;
                 for (int i = 0; i < responses.size(); i++) {
                     if (sort.get(i) < dueIn) continue;
-                    Log.d("ADDED", Integer.toString(i));
                     sort.add(i, dueIn);
                     responses.add(i, response);
                     added = true;
                     break;
                 }
                 if (!added) {
-                    Log.d("ADDED", "AT END");
                     sort.add(dueIn);
                     responses.add(response);
                 }
             }
             cursor.close();
-            Log.d("INFO", Integer.toString(count));
         }
         return responses.toArray(new String[responses.size()]);
     }

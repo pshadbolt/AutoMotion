@@ -14,6 +14,7 @@ import android.widget.Toast;
 
 import com.ssj.prototype.prototype.R;
 import com.ssj.prototype.prototype.database.GarageDataSource;
+import com.ssj.prototype.prototype.model.EdmundsCodes;
 import com.ssj.prototype.prototype.model.Vehicle;
 
 import org.json.JSONArray;
@@ -73,7 +74,7 @@ public class AddVehicleActivity extends AppCompatActivity implements AdapterView
         confirm = (Button) findViewById(R.id.confirm);
 
         //Initiate populating the spinner values
-        query("makes?", "makes", "name", "niceName", make);
+        query(EdmundsCodes.MAKES_QUERY, EdmundsCodes.MAKES_ARRAY, EdmundsCodes.MAKES_NAME, EdmundsCodes.MAKES_ID, make);
     }
 
     // Spinner Selector
@@ -86,25 +87,25 @@ public class AddVehicleActivity extends AppCompatActivity implements AdapterView
             style.setVisibility(View.GONE);
             engine.setVisibility(View.GONE);
             transmission.setVisibility(View.GONE);
-            query(lookup(make) + "/models?", "models", "name", "niceName", model);
+            query(lookup(make) + "/" + EdmundsCodes.MODELS_QUERY, EdmundsCodes.MODELS_ARRAY, EdmundsCodes.MODELS_NAME, EdmundsCodes.MODELS_ID, model);
         }
         if (parent.getId() == model.getId()) {
             year.setVisibility(View.GONE);
             style.setVisibility(View.GONE);
             engine.setVisibility(View.GONE);
             transmission.setVisibility(View.GONE);
-            query(lookup(make) + "/" + lookup(model) + "/years?", "years", "year", "year", year);
+            query(lookup(make) + "/" + lookup(model) + "/" + EdmundsCodes.YEARS_QUERY, EdmundsCodes.YEARS_ARRAY, EdmundsCodes.YEARS_NAME, EdmundsCodes.YEARS_ID, year);
         }
         if (parent.getId() == year.getId()) {
             style.setVisibility(View.GONE);
             engine.setVisibility(View.GONE);
             transmission.setVisibility(View.GONE);
-            query(lookup(make) + "/" + lookup(model) + "/" + year.getSelectedItem() + "/styles?", "styles", "name", "id", style);
+            query(lookup(make) + "/" + lookup(model) + "/" + year.getSelectedItem() + "/" + EdmundsCodes.STYLES_QUERY, EdmundsCodes.STYLES_ARRAY, EdmundsCodes.STYLES_NAME, EdmundsCodes.STYLES_ID, style);
         }
         if (parent.getId() == style.getId()) {
             engine.setVisibility(View.GONE);
             transmission.setVisibility(View.GONE);
-            query("styles/" + lookup(style) + "/engines?", "engines", "name", "id", engine);
+            query("styles/" + lookup(style) + "/" + EdmundsCodes.ENGINES_QUERY, EdmundsCodes.ENGINES_ARRAY, EdmundsCodes.ENGINES_NAME, EdmundsCodes.ENGINES_ID, engine);
             query("styles/" + lookup(style) + "/transmissions?", "transmissions", "transmissionType", "id", transmission);
         }
         if (parent.getId() == engine.getId()) {
