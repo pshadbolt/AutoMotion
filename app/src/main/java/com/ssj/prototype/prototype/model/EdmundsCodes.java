@@ -27,7 +27,13 @@ public class EdmundsCodes {
 
     public static final String ENGINES_QUERY = "engines?";
     public static final String ENGINES_ARRAY = "engines";
-    public static final String ENGINES_NAME = "code";
     //public static final String ENGINES_NAME = "manufacturerEngineCode";
-    public static final String ENGINES_ID = "id";
+    public static final String ENGINES_NAME = "code";
+    //public static final String ENGINES_ID = "id";
+    public static final String ENGINES_ID = "code";
+
+    public static final String TRANSMISSIONS_QUERY = "transmissions?";
+    public static final String TRANSMISSIONS_ARRAY = "transmissions";
+    public static final String TRANSMISSIONS_NAME = "transmissionType";
+    public static final String TRANSMISSIONS_ID = "id";
 }

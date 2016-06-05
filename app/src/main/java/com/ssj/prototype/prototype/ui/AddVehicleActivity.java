@@ -49,7 +49,7 @@ public class AddVehicleActivity extends AppCompatActivity implements AdapterView
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_addvehicle);
+        setContentView(R.layout.activity_add_vehicle);
 
         // Prepare Spinners
         make = (Spinner) findViewById(R.id.spinner1);
@@ -58,14 +58,14 @@ public class AddVehicleActivity extends AppCompatActivity implements AdapterView
         style = (Spinner) findViewById(R.id.spinner4);
         engine = (Spinner) findViewById(R.id.spinner5);
         transmission = (Spinner) findViewById(R.id.spinner6);
-        make.setOnItemSelectedListener(this);
-        model.setOnItemSelectedListener(this);
-        year.setOnItemSelectedListener(this);
-        style.setOnItemSelectedListener(this);
-        engine.setOnItemSelectedListener(this);
-        transmission.setOnItemSelectedListener(this);
 
         spinnerMap = new HashMap<Spinner, HashMap<String, String>>();
+        spinnerMap.put(make, new HashMap<String, String>());
+        spinnerMap.put(model, new HashMap<String, String>());
+        spinnerMap.put(year, new HashMap<String, String>());
+        spinnerMap.put(style, new HashMap<String, String>());
+        spinnerMap.put(engine, new HashMap<String, String>());
+        spinnerMap.put(transmission, new HashMap<String, String>());
 
         mileageTotal = (EditText) findViewById(R.id.editText1);
         mileageAnnual = (EditText) findViewById(R.id.editText2);
@@ -74,11 +74,38 @@ public class AddVehicleActivity extends AppCompatActivity implements AdapterView
         confirm = (Button) findViewById(R.id.confirm);
 
         //Initiate populating the spinner values
-        query(EdmundsCodes.MAKES_QUERY, EdmundsCodes.MAKES_ARRAY, EdmundsCodes.MAKES_NAME, EdmundsCodes.MAKES_ID, make);
+        if (this.getIntent().hasExtra("VIN") && this.getIntent().getExtras().getString("VIN").length() > 11) {
+            toggleSpinners(false);
+            String VIN = this.getIntent().getExtras().getString("VIN");
+            new VINQuery().execute(VIN.subSequence(0, 8).toString().toUpperCase() + VIN.subSequence(9, 11).toString().toUpperCase());
+        } else {
+            enableListeners();
+            toggleSpinners(true);
+            query(EdmundsCodes.MAKES_QUERY, EdmundsCodes.MAKES_ARRAY, EdmundsCodes.MAKES_NAME, EdmundsCodes.MAKES_ID, make);
+        }
+    }
+
+    private void toggleSpinners(boolean enabled) {
+        make.setEnabled(enabled);
+        model.setEnabled(enabled);
+        year.setEnabled(enabled);
+        style.setEnabled(enabled);
+        engine.setEnabled(enabled);
+        transmission.setEnabled(enabled);
+    }
+
+    private void enableListeners() {
+        make.setOnItemSelectedListener(this);
+        model.setOnItemSelectedListener(this);
+        year.setOnItemSelectedListener(this);
+        style.setOnItemSelectedListener(this);
+        engine.setOnItemSelectedListener(this);
+        transmission.setOnItemSelectedListener(this);
     }
 
     // Spinner Selector
     public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
+
         findViewById(R.id.confirm).setEnabled(false);
 
         if (parent.getId() == make.getId()) {
@@ -106,7 +133,7 @@ public class AddVehicleActivity extends AppCompatActivity implements AdapterView
             engine.setVisibility(View.GONE);
             transmission.setVisibility(View.GONE);
             query("styles/" + lookup(style) + "/" + EdmundsCodes.ENGINES_QUERY, EdmundsCodes.ENGINES_ARRAY, EdmundsCodes.ENGINES_NAME, EdmundsCodes.ENGINES_ID, engine);
-            query("styles/" + lookup(style) + "/transmissions?", "transmissions", "transmissionType", "id", transmission);
+            query("styles/" + lookup(style) + "/" + EdmundsCodes.TRANSMISSIONS_QUERY, EdmundsCodes.TRANSMISSIONS_ARRAY, EdmundsCodes.TRANSMISSIONS_NAME, EdmundsCodes.TRANSMISSIONS_ID, transmission);
         }
         if (parent.getId() == engine.getId()) {
             findViewById(R.id.confirm).setEnabled(true);
@@ -125,6 +152,121 @@ public class AddVehicleActivity extends AppCompatActivity implements AdapterView
     private String endpointVehicle = "https://api.edmunds.com/api/vehicle/v2/";
     private String format = "fmt=json";
     private String api_key = "&api_key=m6vz5qajjyxbctbehqtnguz2";
+
+    /**
+     * Perform the call to the REST API and update spinner with retrieved values
+     */
+    private class VINQuery extends AsyncTask<String, Void, String[]> {
+
+        @Override
+        protected void onPreExecute() {
+            findViewById(R.id.loadingPanel).setVisibility(View.VISIBLE);
+            super.onPreExecute();
+        }
+
+        protected String[] doInBackground(String... params) {
+            try {
+                URL url = new URL(endpointVehicle + "squishvins/" + params[0] + "/?" + format + api_key);
+                Log.d("REST", url.toString());
+                HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+                try {
+                    //Send request to REST API
+                    BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
+                    StringBuilder stringBuilder = new StringBuilder();
+                    String line;
+                    while ((line = bufferedReader.readLine()) != null) {
+                        stringBuilder.append(line).append("\n");
+                    }
+                    bufferedReader.close();
+                    Log.d("INFO", stringBuilder.toString());
+
+                    //Parse JSON response
+                    String[] responses = new String[6];
+                    JSONObject jsonObject = new JSONObject(stringBuilder.toString());
+
+                    if (jsonObject.getJSONObject("make").has(EdmundsCodes.MAKES_NAME)) {
+                        responses[0] = jsonObject.getJSONObject("make").getString(EdmundsCodes.MAKES_NAME);
+                        spinnerMap.get(make).put(responses[0], jsonObject.getJSONObject("make").getString(EdmundsCodes.MAKES_ID));
+                    }
+                    if (jsonObject.getJSONObject("model").has(EdmundsCodes.MODELS_NAME)) {
+                        responses[1] = jsonObject.getJSONObject("model").getString(EdmundsCodes.MODELS_NAME);
+                        spinnerMap.get(model).put(responses[1], jsonObject.getJSONObject("model").getString(EdmundsCodes.MODELS_ID));
+                    }
+                    if (jsonObject.getJSONArray("years").getJSONObject(0).has(EdmundsCodes.YEARS_NAME)) {
+                        responses[2] = jsonObject.getJSONArray("years").getJSONObject(0).getString(EdmundsCodes.YEARS_NAME);
+                        spinnerMap.get(year).put(responses[2], jsonObject.getJSONArray("years").getJSONObject(0).getString(EdmundsCodes.YEARS_ID));
+                    }
+                    if (jsonObject.getJSONArray("years").getJSONObject(0).getJSONArray("styles").getJSONObject(0).has(EdmundsCodes.STYLES_NAME) && jsonObject.getJSONArray("years").getJSONObject(0).getJSONArray("styles").length() == 1) {
+                        responses[3] = jsonObject.getJSONArray("years").getJSONObject(0).getJSONArray("styles").getJSONObject(0).getString(EdmundsCodes.STYLES_NAME);
+                        spinnerMap.get(style).put(responses[3], jsonObject.getJSONArray("years").getJSONObject(0).getJSONArray("styles").getJSONObject(0).getString(EdmundsCodes.STYLES_ID));
+                    }
+                    if (jsonObject.getJSONObject("engine").has(EdmundsCodes.ENGINES_NAME)) {
+                        responses[4] = jsonObject.getJSONObject("engine").getString(EdmundsCodes.ENGINES_NAME);
+                        spinnerMap.get(engine).put(responses[4], jsonObject.getJSONObject("engine").getString(EdmundsCodes.ENGINES_ID));
+                    }
+                    if (jsonObject.getJSONObject("transmission").has(EdmundsCodes.TRANSMISSIONS_NAME)) {
+                        responses[5] = jsonObject.getJSONObject("transmission").getString(EdmundsCodes.TRANSMISSIONS_NAME);
+                        spinnerMap.get(transmission).put(responses[5], jsonObject.getJSONObject("transmission").getString(EdmundsCodes.TRANSMISSIONS_ID));
+                    }
+                    return responses;
+                } finally {
+                    urlConnection.disconnect();
+                }
+            } catch (Exception e) {
+                Log.e("ERROR", e.getMessage(), e);
+                return null;
+            }
+        }
+
+        @Override
+        /**
+         * Set the spinner values to the strings obtained from the REST API call
+         */
+        protected void onPostExecute(String[] responses) {
+            super.onPostExecute(responses);
+
+            if (responses == null) {
+                Toast.makeText(AddVehicleActivity.this, "VIN Not Found.", Toast.LENGTH_LONG).show();
+                enableListeners();
+                toggleSpinners(true);
+                query(EdmundsCodes.MAKES_QUERY, EdmundsCodes.MAKES_ARRAY, EdmundsCodes.MAKES_NAME, EdmundsCodes.MAKES_ID, make);
+            } else {
+                make.setAdapter(new ArrayAdapter<String>(AddVehicleActivity.this, android.R.layout.simple_spinner_dropdown_item, new String[]{responses[0]}));
+                make.setVisibility(View.VISIBLE);
+
+                model.setAdapter(new ArrayAdapter<String>(AddVehicleActivity.this, android.R.layout.simple_spinner_dropdown_item, new String[]{responses[1]}));
+                model.setVisibility(View.VISIBLE);
+
+                year.setAdapter(new ArrayAdapter<String>(AddVehicleActivity.this, android.R.layout.simple_spinner_dropdown_item, new String[]{responses[2]}));
+                year.setVisibility(View.VISIBLE);
+
+                if (responses[3] == null) {
+                    query(lookup(make) + "/" + lookup(model) + "/" + year.getSelectedItem() + "/" + EdmundsCodes.STYLES_QUERY, EdmundsCodes.STYLES_ARRAY, EdmundsCodes.STYLES_NAME, EdmundsCodes.STYLES_ID, style);
+                    style.setEnabled(true);
+                } else {
+                    style.setAdapter(new ArrayAdapter<String>(AddVehicleActivity.this, android.R.layout.simple_spinner_dropdown_item, new String[]{responses[3]}));
+                    style.setVisibility(View.VISIBLE);
+                }
+
+                if (responses[4] == null) {
+                    query("styles/" + lookup(style) + "/" + EdmundsCodes.ENGINES_QUERY, EdmundsCodes.ENGINES_ARRAY, EdmundsCodes.ENGINES_NAME, EdmundsCodes.ENGINES_ID, engine);
+                } else {
+                    engine.setAdapter(new ArrayAdapter<String>(AddVehicleActivity.this, android.R.layout.simple_spinner_dropdown_item, new String[]{responses[4]}));
+                    engine.setVisibility(View.VISIBLE);
+                }
+
+                if (responses[5] == null) {
+                    query("styles/" + lookup(style) + "/" + EdmundsCodes.TRANSMISSIONS_QUERY, EdmundsCodes.TRANSMISSIONS_ARRAY, EdmundsCodes.TRANSMISSIONS_NAME, EdmundsCodes.TRANSMISSIONS_ID, transmission);
+                } else {
+                    transmission.setAdapter(new ArrayAdapter<String>(AddVehicleActivity.this, android.R.layout.simple_spinner_dropdown_item, new String[]{responses[5]}));
+                    transmission.setVisibility(View.VISIBLE);
+                }
+
+                confirm.setEnabled(true);
+                findViewById(R.id.loadingPanel).setVisibility(View.GONE);
+            }
+        }
+    }
 
     /**
      * Perform the call to the REST API and update spinner with retrieved values
@@ -338,8 +480,7 @@ public class AddVehicleActivity extends AppCompatActivity implements AdapterView
      * Execute the query to populate a spinner value
      */
     public void query(String query, String array, String name, String niceName, Spinner spinner) {
-        SpinnerQuery spinnerQuery = new SpinnerQuery(spinner);
-        spinnerQuery.execute(new String[]{query, array, name, niceName});
+        new SpinnerQuery(spinner).execute(new String[]{query, array, name, niceName});
     }
 
     /**
@@ -352,14 +493,8 @@ public class AddVehicleActivity extends AppCompatActivity implements AdapterView
             finish();
         } else if (state == 2) {
             state = 1;
-            make.setVisibility(View.VISIBLE);
-            model.setVisibility(View.VISIBLE);
-            year.setVisibility(View.VISIBLE);
-            style.setVisibility(View.VISIBLE);
-            engine.setVisibility(View.VISIBLE);
-            transmission.setVisibility(View.VISIBLE);
-            mileageTotal.setVisibility(View.GONE);
-            mileageAnnual.setVisibility(View.GONE);
+            findViewById(R.id.layout_spinners).setVisibility(View.VISIBLE);
+            findViewById(R.id.layout_mileage).setVisibility(View.GONE);
             cancel.setText("CANCEL");
             confirm.setText("NEXT");
         }
@@ -372,14 +507,8 @@ public class AddVehicleActivity extends AppCompatActivity implements AdapterView
 
         if (state == 1) {
             state = 2;
-            make.setVisibility(View.GONE);
-            model.setVisibility(View.GONE);
-            year.setVisibility(View.GONE);
-            style.setVisibility(View.GONE);
-            engine.setVisibility(View.GONE);
-            transmission.setVisibility(View.GONE);
-            mileageTotal.setVisibility(View.VISIBLE);
-            mileageAnnual.setVisibility(View.VISIBLE);
+            findViewById(R.id.layout_spinners).setVisibility(View.GONE);
+            findViewById(R.id.layout_mileage).setVisibility(View.VISIBLE);
             cancel.setText("BACK");
             confirm.setText("CONFIRM");
         } else if (state == 2) {
@@ -389,7 +518,7 @@ public class AddVehicleActivity extends AppCompatActivity implements AdapterView
 
             Vehicle vehicle = garageDataSource.insertVehicle((String) year.getSelectedItem(), (String) make.getSelectedItem(), (String) model.getSelectedItem(), (String) style.getSelectedItem(), (String) engine.getSelectedItem(), (String) transmission.getSelectedItem(), mileageTotal.getText().toString(), mileageAnnual.getText().toString());
             VehicleMaintenanceQuery vehicleMaintenanceQuery = new VehicleMaintenanceQuery(garageDataSource, vehicle);
-            vehicleMaintenanceQuery.execute(new String[]{lookup(make) + "/" + lookup(model) + "/" + year.getSelectedItem() + "/styles?", (String) style.getSelectedItem()});
+            vehicleMaintenanceQuery.execute(new String[]{lookup(make) + "/" + lookup(model) + "/" + year.getSelectedItem() + "/" + EdmundsCodes.STYLES_QUERY, (String) style.getSelectedItem()});
         }
     }
 }

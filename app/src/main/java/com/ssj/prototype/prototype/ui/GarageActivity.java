@@ -1,22 +1,28 @@
 package com.ssj.prototype.prototype.ui;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import com.ssj.prototype.prototype.adapters.GarageListArrayAdapter;
-import com.ssj.prototype.prototype.model.Vehicle;
 import com.ssj.prototype.prototype.R;
+import com.ssj.prototype.prototype.adapters.GarageListArrayAdapter;
 import com.ssj.prototype.prototype.database.GarageDataSource;
+import com.ssj.prototype.prototype.model.Vehicle;
 
 import java.util.ArrayList;
+
+import io.github.yavski.fabspeeddial.FabSpeedDial;
+import io.github.yavski.fabspeeddial.SimpleMenuListenerAdapter;
 
 public class GarageActivity extends AppCompatActivity {
 
@@ -55,11 +61,20 @@ public class GarageActivity extends AppCompatActivity {
             }
         });
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
+        FabSpeedDial fabSpeedDial = (FabSpeedDial) findViewById(R.id.fab_add_vehicle);
+        fabSpeedDial.setMenuListener(new SimpleMenuListenerAdapter() {
             @Override
-            public void onClick(View view) {
-                startActivity(new Intent(GarageActivity.this, AddVehicleActivity.class));
+            public boolean onMenuItemSelected(MenuItem menuItem) {
+                int id = menuItem.getItemId();
+
+                if (id == R.id.action_vin_lookup) {
+                    showInputDialog();
+                    return true;
+                } else if (id == R.id.action_manual_lookup) {
+                    startActivity(new Intent(getBaseContext(), AddVehicleActivity.class));
+                    return true;
+                }
+                return true;
             }
         });
     }
@@ -97,6 +112,39 @@ public class GarageActivity extends AppCompatActivity {
         garageDatasource.close();
         Toast.makeText(this, "Vehicle Deleted From Garage", Toast.LENGTH_LONG).show();
         populateList();
+    }
+
+    //TODO minimum length of the string
+    protected void showInputDialog() {
+
+        // get prompts.xml view
+        LayoutInflater layoutInflater = LayoutInflater.from(GarageActivity.this);
+        View promptView = layoutInflater.inflate(R.layout.dialog_input, null);
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(GarageActivity.this);
+        alertDialogBuilder.setView(promptView);
+
+        final EditText editText = (EditText) promptView.findViewById(R.id.editText_vin);
+        // setup a dialog window
+        alertDialogBuilder.setCancelable(false)
+                .setPositiveButton("SUBMIT", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        Intent intent = new Intent(getBaseContext(), AddVehicleActivity.class);
+                        Bundle bundle = new Bundle();
+                        bundle.putString("VIN", editText.getText().toString());
+                        intent.putExtras(bundle);
+                        startActivity(intent);
+                    }
+                })
+                .setNegativeButton("CANCEL",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                dialog.cancel();
+                            }
+                        });
+
+        // create an alert dialog
+        AlertDialog alert = alertDialogBuilder.create();
+        alert.show();
     }
 
     /**

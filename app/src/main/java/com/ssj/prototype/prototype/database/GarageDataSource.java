@@ -10,9 +10,6 @@ import android.util.Log;
 import com.ssj.prototype.prototype.model.Vehicle;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Created by shadbolt on 5/14/2016.
@@ -145,6 +142,9 @@ public class GarageDataSource {
         return response;
     }
 
+    /**
+     * @return
+     */
     public String[] getMaintenanceActivities() {
         ArrayList<String> responses = new ArrayList<>();
         ArrayList<Integer> sort = new ArrayList<>();
@@ -156,7 +156,8 @@ public class GarageDataSource {
             int low = vehicle.getMileageTotal() - 10000;
             int high = vehicle.getMileageTotal() + 50000;
 
-            Cursor cursor = database.query(GarageDataOpenHelper.TABLE_NAME_MAINTENANCE, allMaintenanceColumns, GarageDataOpenHelper.COLUMN_INTERVAL_MILEAGE + " between " + low + " and " + high + " and " + GarageDataOpenHelper.COLUMN_VEHICLE_ID + "=\'" + vehicle.getId() + "\'" + " and " + GarageDataOpenHelper.COLUMN_ENGINE_CODE + "=\'" + vehicle.getEngine() + "\'", null, null, null, null);
+            Log.d("QUERY", GarageDataOpenHelper.COLUMN_INTERVAL_MILEAGE + " between " + low + " and " + high + " and " + GarageDataOpenHelper.COLUMN_VEHICLE_ID + "=\'" + vehicle.getId() + "\'" + " and " + GarageDataOpenHelper.COLUMN_ENGINE_CODE + "=\'" + vehicle.getEngine() + "\'" + " and (" + GarageDataOpenHelper.COLUMN_TRANSMISSION_CODE + "=\'" + vehicle.getTransmission() + "\' OR " + GarageDataOpenHelper.COLUMN_TRANSMISSION_CODE + "=\'ALL\'" + ")");
+            Cursor cursor = database.query(GarageDataOpenHelper.TABLE_NAME_MAINTENANCE, allMaintenanceColumns, GarageDataOpenHelper.COLUMN_INTERVAL_MILEAGE + " between " + low + " and " + high + " and " + GarageDataOpenHelper.COLUMN_VEHICLE_ID + "=\'" + vehicle.getId() + "\'" + " and " + GarageDataOpenHelper.COLUMN_ENGINE_CODE + "=\'" + vehicle.getEngine() + "\'" + " and (" + GarageDataOpenHelper.COLUMN_TRANSMISSION_CODE + "=\'" + vehicle.getTransmission() + "\' OR " + GarageDataOpenHelper.COLUMN_TRANSMISSION_CODE + "=\'ALL\'" + ")", null, null, null, null);
             cursor.moveToFirst();
             while (!cursor.isAfterLast()) {
 

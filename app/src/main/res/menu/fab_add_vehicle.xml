@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/action_vin_lookup"
+        android:icon="@drawable/ic_zoom_in_black_24dp"
+        android:title="@string/fab_action_search_vin" />
+    <item
+        android:id="@+id/action_manual_lookup"
+        android:icon="@drawable/ic_touch_app_black_24dp"
+        android:title="@string/fab_action_search_manual"/>
+</menu>
