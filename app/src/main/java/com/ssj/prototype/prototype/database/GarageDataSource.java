@@ -2,9 +2,11 @@ package com.ssj.prototype.prototype.database;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
+import android.preference.PreferenceManager;
 import android.util.Log;
 
 import com.ssj.prototype.prototype.model.Vehicle;
@@ -16,6 +18,8 @@ import java.util.ArrayList;
  */
 public class GarageDataSource {
 
+    private Context context;
+
     // Database fields
     private SQLiteDatabase database;
     private GarageDataOpenHelper dbHelper;
@@ -23,6 +27,7 @@ public class GarageDataSource {
     private String[] allMaintenanceColumns = {GarageDataOpenHelper.COLUMN_VEHICLE_ID, GarageDataOpenHelper.COLUMN_ENGINE_CODE, GarageDataOpenHelper.COLUMN_TRANSMISSION_CODE, GarageDataOpenHelper.COLUMN_FREQUENCY, GarageDataOpenHelper.COLUMN_INTERVAL_MILEAGE, GarageDataOpenHelper.COLUMN_ACTION, GarageDataOpenHelper.COLUMN_ITEM, GarageDataOpenHelper.COLUMN_ITEM_DESCRIPTION};
 
     public GarageDataSource(Context context) {
+        this.context = context;
         dbHelper = new GarageDataOpenHelper(context);
     }
 
@@ -153,8 +158,10 @@ public class GarageDataSource {
         for (Vehicle vehicle : vehicles) {
 
             //Set the mileage threshold to search
-            int low = vehicle.getMileageTotal() - 10000;
-            int high = vehicle.getMileageTotal() + 50000;
+            final SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(context);
+            int threshold = settings.getInt("threshold", 10000);
+            int low = vehicle.getMileageTotal() - threshold;
+            int high = vehicle.getMileageTotal() + threshold;
 
             Log.d("QUERY", GarageDataOpenHelper.COLUMN_INTERVAL_MILEAGE + " between " + low + " and " + high + " and " + GarageDataOpenHelper.COLUMN_VEHICLE_ID + "=\'" + vehicle.getId() + "\'" + " and " + GarageDataOpenHelper.COLUMN_ENGINE_CODE + "=\'" + vehicle.getEngine() + "\'" + " and (" + GarageDataOpenHelper.COLUMN_TRANSMISSION_CODE + "=\'" + vehicle.getTransmission() + "\' OR " + GarageDataOpenHelper.COLUMN_TRANSMISSION_CODE + "=\'ALL\'" + ")");
             Cursor cursor = database.query(GarageDataOpenHelper.TABLE_NAME_MAINTENANCE, allMaintenanceColumns, GarageDataOpenHelper.COLUMN_INTERVAL_MILEAGE + " between " + low + " and " + high + " and " + GarageDataOpenHelper.COLUMN_VEHICLE_ID + "=\'" + vehicle.getId() + "\'" + " and " + GarageDataOpenHelper.COLUMN_ENGINE_CODE + "=\'" + vehicle.getEngine() + "\'" + " and (" + GarageDataOpenHelper.COLUMN_TRANSMISSION_CODE + "=\'" + vehicle.getTransmission() + "\' OR " + GarageDataOpenHelper.COLUMN_TRANSMISSION_CODE + "=\'ALL\'" + ")", null, null, null, null);
