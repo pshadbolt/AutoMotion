@@ -74,7 +74,7 @@ public class AddVehicleActivity extends AppCompatActivity implements AdapterView
         confirm = (Button) findViewById(R.id.confirm);
 
         //Initiate populating the spinner values
-        if (this.getIntent().hasExtra("VIN") && this.getIntent().getExtras().getString("VIN").length() > 11) {
+        if (this.getIntent().hasExtra("VIN") && this.getIntent().getExtras().getString("VIN").length() >= 11) {
             toggleSpinners(false);
             String VIN = this.getIntent().getExtras().getString("VIN");
             new VINQuery().execute(VIN.subSequence(0, 8).toString().toUpperCase() + VIN.subSequence(9, 11).toString().toUpperCase());
@@ -200,11 +200,11 @@ public class AddVehicleActivity extends AppCompatActivity implements AdapterView
                         responses[3] = jsonObject.getJSONArray("years").getJSONObject(0).getJSONArray("styles").getJSONObject(0).getString(EdmundsCodes.STYLES_NAME);
                         spinnerMap.get(style).put(responses[3], jsonObject.getJSONArray("years").getJSONObject(0).getJSONArray("styles").getJSONObject(0).getString(EdmundsCodes.STYLES_ID));
                     }
-                    if (jsonObject.getJSONObject("engine").has(EdmundsCodes.ENGINES_NAME)) {
+                    if (jsonObject.getJSONObject("engine").has(EdmundsCodes.ENGINES_NAME) && jsonObject.getJSONObject("engine").has(EdmundsCodes.ENGINES_ID)) {
                         responses[4] = jsonObject.getJSONObject("engine").getString(EdmundsCodes.ENGINES_NAME);
                         spinnerMap.get(engine).put(responses[4], jsonObject.getJSONObject("engine").getString(EdmundsCodes.ENGINES_ID));
                     }
-                    if (jsonObject.getJSONObject("transmission").has(EdmundsCodes.TRANSMISSIONS_NAME)) {
+                    if (jsonObject.getJSONObject("transmission").has(EdmundsCodes.TRANSMISSIONS_NAME) && jsonObject.getJSONObject("transmission").has(EdmundsCodes.TRANSMISSIONS_ID)) {
                         responses[5] = jsonObject.getJSONObject("transmission").getString(EdmundsCodes.TRANSMISSIONS_NAME);
                         spinnerMap.get(transmission).put(responses[5], jsonObject.getJSONObject("transmission").getString(EdmundsCodes.TRANSMISSIONS_ID));
                     }
@@ -226,7 +226,7 @@ public class AddVehicleActivity extends AppCompatActivity implements AdapterView
             super.onPostExecute(responses);
 
             if (responses == null) {
-                Toast.makeText(AddVehicleActivity.this, "VIN Not Found.", Toast.LENGTH_LONG).show();
+                Toast.makeText(AddVehicleActivity.this, "VIN Not Found", Toast.LENGTH_LONG).show();
                 enableListeners();
                 toggleSpinners(true);
                 query(EdmundsCodes.MAKES_QUERY, EdmundsCodes.MAKES_ARRAY, EdmundsCodes.MAKES_NAME, EdmundsCodes.MAKES_ID, make);

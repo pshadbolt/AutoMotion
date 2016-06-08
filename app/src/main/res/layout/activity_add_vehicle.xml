@@ -23,42 +23,6 @@
             android:indeterminate="true" />
     </RelativeLayout>
 
-    <!--RelativeLayout
-        android:id="@+id/layout_vin"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:visibility="visible">
-
-        <TextView
-            android:id="@+id/textViewVIN"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:inputType="textCapCharacters"
-            android:text="Use VIN Number Lookup" />
-
-        <Switch
-            android:id="@+id/switch1"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentEnd="true"
-            android:layout_alignParentRight="true"
-            android:layout_alignParentTop="true"
-            android:layout_marginBottom="16dp"
-            android:checked="false" />
-
-        <EditText
-            android:id="@+id/editTextVIN"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/switch1"
-            android:digits="abcdefghijklmnopqrstuvwxyz1234567890"
-            android:enabled="false"
-            android:hint="VIN Number"
-            android:singleLine="true"
-            android:visibility="invisible" />
-
-    </RelativeLayout-->
-
     <RelativeLayout
         android:id="@+id/layout_spinners"
         android:layout_width="match_parent"
