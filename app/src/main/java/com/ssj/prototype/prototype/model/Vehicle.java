@@ -73,7 +73,6 @@ public class Vehicle {
         this.transmission = transmission;
     }
 
-
     public int getMileageTotal() {
         return mileageTotal;
     }

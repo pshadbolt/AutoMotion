@@ -13,14 +13,20 @@
     tools:showIn="@layout/activity_vehicle">
 
     <TextView
-        android:id="@+id/textView1"
+        android:id="@+id/textView0"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 
-    <ScrollView
-        android:layout_below="@+id/textView1"
+    <TextView
+        android:id="@+id/textView1"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/textView0" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/textView1">
 
         <TextView
             android:id="@+id/textView2"

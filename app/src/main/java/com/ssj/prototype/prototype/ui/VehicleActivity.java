@@ -29,6 +29,7 @@ public class VehicleActivity extends AppCompatActivity {
         garageDataSource = new GarageDataSource(this);
         garageDataSource.open();
 
+        ((TextView) findViewById(R.id.textView0)).setText(garageDataSource.getVehicle(vehicleID));
         ((TextView) findViewById(R.id.textView1)).setText(garageDataSource.getMileage(vehicleID));
         ((TextView) findViewById(R.id.textView2)).setText(garageDataSource.getMaintenance(vehicleID));
     }
