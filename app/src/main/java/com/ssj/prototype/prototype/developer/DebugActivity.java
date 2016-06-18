@@ -7,7 +7,6 @@ import android.widget.Toast;
 
 import com.ssj.prototype.prototype.R;
 import com.ssj.prototype.prototype.database.GarageDataSource;
-import com.ssj.prototype.prototype.database.VehicleLocalDataSource;
 import com.ssj.prototype.prototype.model.Vehicle;
 
 import java.io.BufferedReader;
@@ -19,7 +18,6 @@ import java.util.StringTokenizer;
 
 public class DebugActivity extends AppCompatActivity {
 
-    private VehicleLocalDataSource vehicleLocalDatasource;
     private GarageDataSource garageDatasource;
 
     @Override
@@ -28,14 +26,11 @@ public class DebugActivity extends AppCompatActivity {
         setContentView(R.layout.activity_debug);
 
         // Create the database connections
-        vehicleLocalDatasource = new VehicleLocalDataSource(this);
-        vehicleLocalDatasource.open();
         garageDatasource = new GarageDataSource(this);
         garageDatasource.open();
     }
 
     public void deleteDatabaseVehicles(View view) {
-        vehicleLocalDatasource.drop();
         Toast.makeText(this, "Vehicle Database Deleted", Toast.LENGTH_LONG).show();
     }
 
@@ -59,7 +54,6 @@ public class DebugActivity extends AppCompatActivity {
                     vehicle.setStyle(st.nextToken());
                 else
                     vehicle.setStyle("");
-                vehicleLocalDatasource.insertValue(vehicle);
             }
         } catch (IOException e) {
             e.printStackTrace();

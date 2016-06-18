@@ -1,8 +1,5 @@
 package com.ssj.prototype.prototype;
 
-import com.ssj.prototype.prototype.model.Edmunds.EdmundsAttribute;
-import com.ssj.prototype.prototype.model.Edmunds.Make;
-
 import org.junit.Test;
 
 import static org.junit.Assert.*;
