@@ -5,5 +5,7 @@ import org.junit.runners.Suite;
 
 // Runs all unit tests.
 @RunWith(Suite.class)
-@Suite.SuiteClasses({GarageTest.class})
-public class ApplicationTestSuite {}
+//@Suite.SuiteClasses({GarageTestVIN.class})
+@Suite.SuiteClasses({GarageTestVIN.class, GarageTestManual.class})
+public class ApplicationTestSuite {
+}
