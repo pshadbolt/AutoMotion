@@ -46,6 +46,7 @@ public class AddVehicleActivity extends AppCompatActivity implements AdapterView
     protected Button confirm;
 
     //Data Elements
+    private int queryCounter = 0;
     private int state = 1;
     private HashMap<Spinner, HashMap<String, String>> lookupMap;
     private HashMap<Spinner, HashMap<String, String>> styleMap;
@@ -84,7 +85,7 @@ public class AddVehicleActivity extends AppCompatActivity implements AdapterView
         if (this.getIntent().hasExtra("VIN") && this.getIntent().getExtras().getString("VIN").length() >= 11) {
             toggleSpinners(false);
             String VIN = this.getIntent().getExtras().getString("VIN");
-            new VINQuery().execute(VIN.subSequence(0, 8).toString().toUpperCase() + VIN.subSequence(9, 11).toString().toUpperCase());
+            new QueryVIN().execute(VIN.subSequence(0, 8).toString().toUpperCase() + VIN.subSequence(9, 11).toString().toUpperCase());
         } else {
             enableListeners();
             toggleSpinners(true);
@@ -154,16 +155,10 @@ public class AddVehicleActivity extends AppCompatActivity implements AdapterView
         // Another interface callback
     }
 
-    //Query information
-    private String endpointMaintenance = "https://api.edmunds.com/v1/api/maintenance/";
-    private String endpointVehicle = "https://api.edmunds.com/api/vehicle/v2/";
-    private String format = "fmt=json";
-    private String api_key = "&api_key=m6vz5qajjyxbctbehqtnguz2";
-
     /**
      * Perform the call to the REST API and update spinner with retrieved values
      */
-    private class VINQuery extends AsyncTask<String, Void, String[]> {
+    private class QueryVIN extends AsyncTask<String, Void, String[]> {
 
         @Override
         protected void onPreExecute() {
@@ -173,9 +168,10 @@ public class AddVehicleActivity extends AppCompatActivity implements AdapterView
 
         protected String[] doInBackground(String... params) {
             try {
-                URL url = new URL(endpointVehicle + "squishvins/" + params[0] + "/?" + format + api_key);
+                URL url = new URL(EdmundsCodes.endpointVehicle + "squishvins/" + params[0] + "/?" + EdmundsCodes.format + EdmundsCodes.api_key);
                 Log.d("REST", url.toString());
                 HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+                queryCounter++;
                 try {
                     //Send request to REST API
                     BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
@@ -235,7 +231,7 @@ public class AddVehicleActivity extends AppCompatActivity implements AdapterView
             super.onPostExecute(responses);
 
             if (responses == null) {
-                Toast.makeText(AddVehicleActivity.this, "VIN Not Found", Toast.LENGTH_LONG).show();
+                Toast.makeText(AddVehicleActivity.this, R.string.toast_vin_not_found, Toast.LENGTH_LONG).show();
                 enableListeners();
                 toggleSpinners(true);
                 query(make);
@@ -320,9 +316,10 @@ public class AddVehicleActivity extends AppCompatActivity implements AdapterView
                 String[] queryArray = queries.split(",");
                 for (int i = 0; i < queryArray.length; i++) {
                     String query = queryArray[i];
-                    URL url = new URL(endpointVehicle + queryPrefix + query + queryPostfix + "?" + format + api_key);
+                    URL url = new URL(EdmundsCodes.endpointVehicle + queryPrefix + query + queryPostfix + "?" + EdmundsCodes.format + EdmundsCodes.api_key);
                     Log.d("REST", url.toString());
                     HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+                    queryCounter++;
                     try {
                         //Send request to REST API
                         BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
@@ -424,9 +421,10 @@ public class AddVehicleActivity extends AppCompatActivity implements AdapterView
          */
         protected ArrayList<String[]> doInBackground(String... params) {
             try {
-                URL url = new URL(endpointVehicle + params[0] + "?" + format + api_key);
+                URL url = new URL(EdmundsCodes.endpointVehicle + params[0] + "?" + EdmundsCodes.format + EdmundsCodes.api_key);
                 Log.d("REST", url.toString());
                 HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+                queryCounter++;
                 try {
                     //Send request to REST API
                     BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
@@ -450,7 +448,7 @@ public class AddVehicleActivity extends AppCompatActivity implements AdapterView
                         }
                     }
                     //Lookup the mainteance information using the year ID
-                    url = new URL(endpointMaintenance + "actionrepository/findbymodelyearid?modelyearid=" + yearid + "&" + format + api_key);
+                    url = new URL(EdmundsCodes.endpointMaintenance + "actionrepository/findbymodelyearid?modelyearid=" + yearid + "&" + EdmundsCodes.format + EdmundsCodes.api_key);
                     Log.d("REST", url.toString());
                     urlConnection = (HttpURLConnection) url.openConnection();
                     //Send request to REST API
@@ -512,8 +510,9 @@ public class AddVehicleActivity extends AppCompatActivity implements AdapterView
             }
             garageDataSource.close();
             findViewById(R.id.loadingPanel).setVisibility(View.GONE);
-            Toast.makeText(AddVehicleActivity.this, "Vehicle Added To Garage", Toast.LENGTH_LONG).show();
+            Toast.makeText(AddVehicleActivity.this, R.string.toast_vehicle_added, Toast.LENGTH_LONG).show();
             //TODO Should finish be used?
+            Log.i("COUNTER", "REST API CALLS: " + queryCounter);
             finish();
         }
     }
@@ -529,14 +528,16 @@ public class AddVehicleActivity extends AppCompatActivity implements AdapterView
      * Find the first common value for style ID based on the engine and transmission selections
      */
     public String commonStyleID() {
-        ArrayList<String> styles_engine = new ArrayList<String>(Arrays.asList(styleMap.get(engine).get(engine.getSelectedItem()).split(",")));
-        ArrayList<String> styles_transmission = new ArrayList<String>(Arrays.asList(styleMap.get(transmission).get(transmission.getSelectedItem()).split(",")));
-        for (String id : styles_engine) {
-            if (styles_transmission.contains(id)) {
-                return id;
+        if (styleMap.get(engine).get(engine.getSelectedItem()) != null) {
+            ArrayList<String> styles_engine = new ArrayList<String>(Arrays.asList(styleMap.get(engine).get(engine.getSelectedItem()).split(",")));
+            ArrayList<String> styles_transmission = new ArrayList<String>(Arrays.asList(styleMap.get(transmission).get(transmission.getSelectedItem()).split(",")));
+            for (String id : styles_engine) {
+                if (styles_transmission.contains(id)) {
+                    return id;
+                }
             }
         }
-        return null;
+        return styleMap.get(transmission).get(transmission.getSelectedItem()).split(",")[0];
     }
 
     /**
@@ -569,8 +570,8 @@ public class AddVehicleActivity extends AppCompatActivity implements AdapterView
             state = 1;
             findViewById(R.id.layout_spinners).setVisibility(View.VISIBLE);
             findViewById(R.id.layout_mileage).setVisibility(View.GONE);
-            cancel.setText("CANCEL");
-            confirm.setText("NEXT");
+            cancel.setText(R.string.button_cancel);
+            confirm.setText(R.string.button_next);
         }
     }
 
@@ -583,13 +584,18 @@ public class AddVehicleActivity extends AppCompatActivity implements AdapterView
             state = 2;
             findViewById(R.id.layout_spinners).setVisibility(View.GONE);
             findViewById(R.id.layout_mileage).setVisibility(View.VISIBLE);
-            cancel.setText("BACK");
-            confirm.setText("CONFIRM");
+            cancel.setText(R.string.button_back);
+            confirm.setText(R.string.button_confirm);
         } else if (state == 2) {
             GarageDataSource garageDataSource = new GarageDataSource(this);
             garageDataSource.open();
 
-            Vehicle vehicle = garageDataSource.insertVehicle((String) year.getSelectedItem(), (String) make.getSelectedItem(), (String) model.getSelectedItem(), (String) style.getSelectedItem(), lookup(engine).split(",")[0], (String) transmission.getSelectedItem(), mileageTotal.getText().toString(), mileageAnnual.getText().toString());
+            //TODO proper lookup and storage of vehicle attributes
+            String engineText = "";
+            if (lookup(engine) != null)
+                engineText = lookup(engine).split(",")[0];
+
+            Vehicle vehicle = garageDataSource.insertVehicle((String) year.getSelectedItem(), (String) make.getSelectedItem(), (String) model.getSelectedItem(), (String) style.getSelectedItem(), engineText, (String) transmission.getSelectedItem(), mileageTotal.getText().toString(), mileageAnnual.getText().toString());
             VehicleMaintenanceQuery vehicleMaintenanceQuery = new VehicleMaintenanceQuery(garageDataSource, vehicle);
             vehicleMaintenanceQuery.execute(new String[]{lookup(make) + "/" + lookup(model) + "/" + lookup(year) + "/" + EdmundsCodes.STYLES_QUERY, commonStyleID()});
         }

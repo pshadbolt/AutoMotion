@@ -10,9 +10,26 @@
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
 
+    <!--Settings-->
     <string name="action_settings">Settings</string>
+    <string name="settings_mileage_threshold">Mileage Threshold</string>
+    <string name="settings_value">Value</string>
 
     <!--Garage -->
     <string name="fab_action_search_vin">Search VIN</string>
     <string name="fab_action_search_manual">Manual Entry</string>
+
+    <!--Toast Messages-->
+    <string name="toast_vehicle_added">Vehicle Added To Garage</string>
+    <string name="toast_vehicle_deleted">Vehicle Deleted From Garage</string>
+    <string name="toast_vin_not_found">VIN Not Found</string>
+
+    <!--Button Actions-->
+    <string name="button_cancel">CANCEL</string>
+    <string name="button_next">NEXT</string>
+    <string name="button_back">BACK</string>
+    <string name="button_confirm">CONFIRM</string>
+    <string name="button_submit">SUBMIT</string>
+    <string name="toast_insufficent_characters">17 Characters Required</string>
+
 </resources>

@@ -5,6 +5,12 @@ package com.ssj.prototype.prototype.model.Edmunds;
  */
 public class EdmundsCodes {
 
+    //Query information
+    public static String endpointMaintenance = "https://api.edmunds.com/v1/api/maintenance/";
+    public static String endpointVehicle = "https://api.edmunds.com/api/vehicle/v2/";
+    public static String format = "fmt=json";
+    public static String api_key = "&api_key=m6vz5qajjyxbctbehqtnguz2";
+
     public static final String MAKES_QUERY = "makes?";
     public static final String MAKES_ARRAY = "makes";
     public static final String MAKES_DISPLAY = "name";

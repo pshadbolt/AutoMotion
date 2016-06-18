@@ -3,22 +3,31 @@ package com.ssj.prototype.prototype.ui;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import com.ssj.prototype.prototype.R;
 import com.ssj.prototype.prototype.adapters.GarageListArrayAdapter;
 import com.ssj.prototype.prototype.database.GarageDataSource;
+import com.ssj.prototype.prototype.model.Edmunds.EdmundsCodes;
 import com.ssj.prototype.prototype.model.Vehicle;
 
+import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.ProtocolException;
+import java.net.URL;
 import java.util.ArrayList;
 
 import io.github.yavski.fabspeeddial.FabSpeedDial;
@@ -92,6 +101,77 @@ public class GarageActivity extends AppCompatActivity {
     }
 
     /**
+     * Verify the VIN entry prior to moving to Add Vehicle Activity
+     */
+    private class VerifyVIN extends AsyncTask<String, Void, Boolean> {
+
+        AlertDialog dialog = null;
+        RelativeLayout loadingPanel = null;
+        String VIN = "";
+
+        public VerifyVIN(String VIN, RelativeLayout loadingPanel, AlertDialog dialog) {
+            this.dialog = dialog;
+            this.loadingPanel = loadingPanel;
+            //this.VIN = "1G1PK5S9XB7170032";
+            //this.VIN = "AAAAA5S9XB7170032";
+            this.VIN = VIN;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            loadingPanel.setVisibility(View.VISIBLE);
+            super.onPreExecute();
+        }
+
+        protected Boolean doInBackground(String... params) {
+
+            URL url = null;
+            HttpURLConnection urlConnection = null;
+            if (VIN.length() == 17) {
+                try {
+                    url = new URL(EdmundsCodes.endpointVehicle + "squishvins/" + VIN.subSequence(0, 8).toString().toUpperCase() + VIN.subSequence(9, 11).toString().toUpperCase() + "/?" + EdmundsCodes.format + EdmundsCodes.api_key);
+                    Log.d("REST", url.toString());
+                    try {
+                        urlConnection = (HttpURLConnection) url.openConnection();
+                        urlConnection.setRequestMethod("GET");
+                        Log.d("REST", String.valueOf(urlConnection.getResponseCode()));
+                        return (urlConnection.getResponseCode() == HttpURLConnection.HTTP_OK);
+                    } finally {
+                        urlConnection.disconnect();
+                    }
+                } catch (MalformedURLException e) {
+                    e.printStackTrace();
+                } catch (ProtocolException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            return false;
+        }
+
+        @Override
+        protected void onPostExecute(Boolean response) {
+            super.onPostExecute(response);
+            loadingPanel.setVisibility(View.INVISIBLE);
+            Log.d("REST", response.toString());
+            if (response.booleanValue()) {
+                dialog.dismiss();
+                Intent intent = new Intent(getBaseContext(), AddVehicleActivity.class);
+                Bundle bundle = new Bundle();
+                bundle.putString("VIN", VIN);
+                intent.putExtras(bundle);
+                startActivity(intent);
+            } else {
+                if (VIN.length() != 17)
+                    Toast.makeText(GarageActivity.this, R.string.toast_insufficent_characters, Toast.LENGTH_LONG).show();
+                else
+                    Toast.makeText(GarageActivity.this, R.string.toast_vin_not_found, Toast.LENGTH_LONG).show();
+            }
+        }
+    }
+
+    /**
      * @param position
      */
     private void clickOnVehicle(int position) {
@@ -110,11 +190,10 @@ public class GarageActivity extends AppCompatActivity {
         garageDatasource.open();
         garageDatasource.deleteVehicle(vehicles.get(position).getId());
         garageDatasource.close();
-        Toast.makeText(this, "Vehicle Deleted From Garage", Toast.LENGTH_LONG).show();
+        Toast.makeText(this, R.string.toast_vehicle_deleted, Toast.LENGTH_LONG).show();
         populateList();
     }
 
-    //TODO minimum length of the string
     protected void showInputDialog() {
 
         // get prompts.xml view
@@ -124,18 +203,15 @@ public class GarageActivity extends AppCompatActivity {
         alertDialogBuilder.setView(promptView);
 
         final EditText editText = (EditText) promptView.findViewById(R.id.editText_vin);
+        final RelativeLayout loadingPanel = (RelativeLayout) promptView.findViewById(R.id.loadingPanel);
+
         // setup a dialog window
         alertDialogBuilder.setCancelable(false)
-                .setPositiveButton("SUBMIT", new DialogInterface.OnClickListener() {
+                .setPositiveButton(R.string.button_submit, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
-                        Intent intent = new Intent(getBaseContext(), AddVehicleActivity.class);
-                        Bundle bundle = new Bundle();
-                        bundle.putString("VIN", editText.getText().toString());
-                        intent.putExtras(bundle);
-                        startActivity(intent);
                     }
                 })
-                .setNegativeButton("CANCEL",
+                .setNegativeButton(R.string.button_cancel,
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
                                 dialog.cancel();
@@ -143,8 +219,15 @@ public class GarageActivity extends AppCompatActivity {
                         });
 
         // create an alert dialog
-        AlertDialog alert = alertDialogBuilder.create();
+        final AlertDialog alert = alertDialogBuilder.create();
         alert.show();
+        //Overriding the handler immediately after show is probably a better approach than OnShowListener as described below
+        alert.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                new VerifyVIN(editText.getText().toString(), loadingPanel, alert).execute();
+            }
+        });
     }
 
     /**

@@ -75,13 +75,24 @@ public class GarageDataSource {
         values.put(GarageDataOpenHelper.COLUMN_ACTION, action);
         values.put(GarageDataOpenHelper.COLUMN_ITEM, item);
         values.put(GarageDataOpenHelper.COLUMN_ITEM_DESCRIPTION, itemDescription);
-        Log.d("INSERT", values.toString());
         database.insert(GarageDataOpenHelper.TABLE_NAME_MAINTENANCE, null, values);
     }
 
     public void deleteVehicle(long id) {
         database.delete(GarageDataOpenHelper.TABLE_NAME_GARAGE, GarageDataOpenHelper.COLUMN_ID
                 + " = " + id, null);
+    }
+
+    public String getVehicle(long id) {
+        String response = null;
+        Cursor cursor = database.query(GarageDataOpenHelper.TABLE_NAME_GARAGE, allGarageColumns, GarageDataOpenHelper.COLUMN_ID + "=\'" + id + "\'", null, null, null, null, null);
+        cursor.moveToFirst();
+        while (!cursor.isAfterLast()) {
+            response = cursor.getString(0) + " " + cursor.getString(1) + " " + cursor.getString(2) + " " + cursor.getString(3) + " " + cursor.getString(4) + " " + cursor.getString(5) + " " + cursor.getString(6);
+            cursor.moveToNext();
+        }
+        cursor.close();
+        return response;
     }
 
     public ArrayList<Vehicle> getAllVehicles() {
@@ -96,19 +107,6 @@ public class GarageDataSource {
         }
         cursor.close();
         return vehicles;
-    }
-
-    public String getAllMaintenance() {
-        String response = "";
-
-        Cursor cursor = database.query(GarageDataOpenHelper.TABLE_NAME_MAINTENANCE, allMaintenanceColumns, null, null, null, null, null);
-        cursor.moveToFirst();
-        while (!cursor.isAfterLast()) {
-            response += cursor.getLong(0) + " " + cursor.getString(1) + " " + cursor.getString(2) + " " + cursor.getString(3) + System.getProperty("line.separator");
-            cursor.moveToNext();
-        }
-        cursor.close();
-        return response;
     }
 
     public String getMileage(long id) {

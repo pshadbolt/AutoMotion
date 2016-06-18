@@ -16,7 +16,7 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
-        android:text="Mileage Threshold"
+        android:text="@string/settings_mileage_threshold"
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
     <TextView
@@ -25,7 +25,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
         android:layout_alignParentTop="true"
-        android:text="Value"
+        android:text="@string/settings_value"
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
     <SeekBar
