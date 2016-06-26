@@ -3,6 +3,7 @@ package com.ssj.prototype.prototype.ui;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
@@ -15,6 +16,11 @@ import android.widget.Toast;
 import com.ssj.prototype.prototype.R;
 import com.ssj.prototype.prototype.database.GarageDataSource;
 import com.ssj.prototype.prototype.model.Edmunds.EdmundsCodes;
+import com.ssj.prototype.prototype.model.Edmunds.Engine;
+import com.ssj.prototype.prototype.model.Edmunds.MaintenanceAction;
+import com.ssj.prototype.prototype.model.Edmunds.Make;
+import com.ssj.prototype.prototype.model.Edmunds.Model;
+import com.ssj.prototype.prototype.model.Edmunds.Year;
 import com.ssj.prototype.prototype.model.Vehicle;
 
 import org.json.JSONArray;
@@ -28,6 +34,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 
 public class AddVehicleActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
 
@@ -48,7 +55,9 @@ public class AddVehicleActivity extends AppCompatActivity implements AdapterView
     //Data Elements
     private int queryCounter = 0;
     private int state = 1;
-    private HashMap<Spinner, HashMap<String, String>> lookupMap;
+    private HashMap<Spinner, HashMap<String, JSONObject>> lookupMap;
+    private HashMap<String, HashSet<String>> styleList;
+    //TODO change this to individual lists for engine and transmission
     private HashMap<Spinner, HashMap<String, String>> styleMap;
 
     @Override
@@ -64,14 +73,15 @@ public class AddVehicleActivity extends AppCompatActivity implements AdapterView
         engine = (Spinner) findViewById(R.id.spinner5);
         transmission = (Spinner) findViewById(R.id.spinner6);
 
-        lookupMap = new HashMap<Spinner, HashMap<String, String>>();
-        lookupMap.put(make, new HashMap<String, String>());
-        lookupMap.put(model, new HashMap<String, String>());
-        lookupMap.put(year, new HashMap<String, String>());
-        lookupMap.put(style, new HashMap<String, String>());
-        lookupMap.put(engine, new HashMap<String, String>());
-        lookupMap.put(transmission, new HashMap<String, String>());
-        styleMap = new HashMap<Spinner, HashMap<String, String>>();
+        lookupMap = new HashMap<>();
+        lookupMap.put(make, new HashMap<String, JSONObject>());
+        lookupMap.put(model, new HashMap<String, JSONObject>());
+        lookupMap.put(year, new HashMap<String, JSONObject>());
+        lookupMap.put(style, new HashMap<String, JSONObject>());
+        lookupMap.put(engine, new HashMap<String, JSONObject>());
+        lookupMap.put(transmission, new HashMap<String, JSONObject>());
+        styleList = new HashMap<>();
+        styleMap = new HashMap<>();
         styleMap.put(engine, new HashMap<String, String>());
         styleMap.put(transmission, new HashMap<String, String>());
 
@@ -123,32 +133,26 @@ public class AddVehicleActivity extends AppCompatActivity implements AdapterView
             engine.setVisibility(View.GONE);
             transmission.setVisibility(View.GONE);
             query(model);
-        }
-        if (parent.getId() == model.getId()) {
+        } else if (parent.getId() == model.getId()) {
             year.setVisibility(View.GONE);
             style.setVisibility(View.GONE);
             engine.setVisibility(View.GONE);
             transmission.setVisibility(View.GONE);
             query(year);
-        }
-        if (parent.getId() == year.getId()) {
+        } else if (parent.getId() == year.getId()) {
             style.setVisibility(View.GONE);
             engine.setVisibility(View.GONE);
             transmission.setVisibility(View.GONE);
             query(style);
-        }
-        if (parent.getId() == style.getId()) {
+        } else if (parent.getId() == style.getId()) {
             engine.setVisibility(View.GONE);
             transmission.setVisibility(View.GONE);
             query(engine);
             query(transmission);
-        }
-        if (parent.getId() == engine.getId()) {
+        } else if (parent.getId() == engine.getId())
             findViewById(R.id.confirm).setEnabled(true);
-        }
-        if (parent.getId() == transmission.getId()) {
+        else if (parent.getId() == transmission.getId())
             findViewById(R.id.confirm).setEnabled(true);
-        }
     }
 
     public void onNothingSelected(AdapterView<?> parent) {
@@ -187,31 +191,28 @@ public class AddVehicleActivity extends AppCompatActivity implements AdapterView
                     String[] responses = new String[6];
                     JSONObject jsonObject = new JSONObject(stringBuilder.toString());
 
-                    if (jsonObject.getJSONObject("make").has(EdmundsCodes.MAKES_DISPLAY)) {
-                        responses[0] = jsonObject.getJSONObject("make").getString(EdmundsCodes.MAKES_DISPLAY);
-                        lookupMap.get(make).put(responses[0], jsonObject.getJSONObject("make").getString(EdmundsCodes.MAKES_ID));
+                    responses[0] = new Make(jsonObject.getJSONObject(EdmundsCodes.MAKE_BASE)).displayValue();
+                    lookupMap.get(make).put(responses[0], jsonObject.getJSONObject(EdmundsCodes.MAKE_BASE));
+
+                    responses[1] = new Model(jsonObject.getJSONObject(EdmundsCodes.MODEL_BASE)).displayValue();
+                    lookupMap.get(model).put(responses[1], jsonObject.getJSONObject(EdmundsCodes.MODEL_BASE));
+
+                    responses[2] = new Year(jsonObject.getJSONArray(EdmundsCodes.YEAR_ARRAY).getJSONObject(0)).displayValue();
+                    lookupMap.get(year).put(responses[2], jsonObject.getJSONArray(EdmundsCodes.YEAR_ARRAY).getJSONObject(0));
+
+                    if (jsonObject.getJSONArray(EdmundsCodes.YEAR_ARRAY).getJSONObject(0).getJSONArray(EdmundsCodes.STYLE_ARRAY).getJSONObject(0).has(EdmundsCodes.STYLE_DISPLAY) && jsonObject.getJSONArray(EdmundsCodes.YEAR_ARRAY).getJSONObject(0).getJSONArray("styles").length() == 1) {
+                        responses[3] = jsonObject.getJSONArray(EdmundsCodes.YEAR_ARRAY).getJSONObject(0).getJSONArray(EdmundsCodes.STYLE_ARRAY).getJSONObject(0).getString(EdmundsCodes.STYLE_DISPLAY);
+                        lookupMap.get(style).put(responses[3], jsonObject.getJSONArray(EdmundsCodes.YEAR_ARRAY).getJSONObject(0).getJSONArray(EdmundsCodes.STYLE_ARRAY).getJSONObject(0));
                     }
-                    if (jsonObject.getJSONObject("model").has(EdmundsCodes.MODELS_DISPLAY)) {
-                        responses[1] = jsonObject.getJSONObject("model").getString(EdmundsCodes.MODELS_DISPLAY);
-                        lookupMap.get(model).put(responses[1], jsonObject.getJSONObject("model").getString(EdmundsCodes.MODELS_ID));
+                    if (jsonObject.getJSONObject(EdmundsCodes.ENGINE_BASE).has(EdmundsCodes.ENGINE_DISPLAY) && jsonObject.getJSONObject(EdmundsCodes.ENGINE_BASE).has(EdmundsCodes.ENGINE_SEARCH)) {
+                        responses[4] = jsonObject.getJSONObject(EdmundsCodes.ENGINE_BASE).getString(EdmundsCodes.ENGINE_DISPLAY);
+                        lookupMap.get(engine).put(responses[4], jsonObject.getJSONObject(EdmundsCodes.ENGINE_BASE));
+                        styleMap.get(engine).put(responses[4], jsonObject.getJSONArray(EdmundsCodes.YEAR_ARRAY).getJSONObject(0).getJSONArray(EdmundsCodes.STYLE_ARRAY).getJSONObject(0).getString(EdmundsCodes.STYLE_SEARCH));
                     }
-                    if (jsonObject.getJSONArray("years").getJSONObject(0).has(EdmundsCodes.YEARS_DISPLAY)) {
-                        responses[2] = jsonObject.getJSONArray("years").getJSONObject(0).getString(EdmundsCodes.YEARS_DISPLAY);
-                        lookupMap.get(year).put(responses[2], jsonObject.getJSONArray("years").getJSONObject(0).getString(EdmundsCodes.YEARS_ID));
-                    }
-                    if (jsonObject.getJSONArray("years").getJSONObject(0).getJSONArray("styles").getJSONObject(0).has(EdmundsCodes.STYLES_DISPLAY) && jsonObject.getJSONArray("years").getJSONObject(0).getJSONArray("styles").length() == 1) {
-                        responses[3] = jsonObject.getJSONArray("years").getJSONObject(0).getJSONArray("styles").getJSONObject(0).getString(EdmundsCodes.STYLES_DISPLAY);
-                        lookupMap.get(style).put(responses[3], jsonObject.getJSONArray("years").getJSONObject(0).getJSONArray("styles").getJSONObject(0).getString(EdmundsCodes.STYLES_ID));
-                    }
-                    if (jsonObject.getJSONObject("engine").has(EdmundsCodes.ENGINES_DISPLAY) && jsonObject.getJSONObject("engine").has(EdmundsCodes.ENGINES_ID)) {
-                        responses[4] = jsonObject.getJSONObject("engine").getString(EdmundsCodes.ENGINES_DISPLAY);
-                        lookupMap.get(engine).put(responses[4], jsonObject.getJSONObject("engine").getString(EdmundsCodes.ENGINES_ID));
-                        styleMap.get(engine).put(responses[4], jsonObject.getJSONArray("years").getJSONObject(0).getJSONArray("styles").getJSONObject(0).getString(EdmundsCodes.STYLES_ID));
-                    }
-                    if (jsonObject.getJSONObject("transmission").has(EdmundsCodes.TRANSMISSIONS_DISPLAY) && jsonObject.getJSONObject("transmission").has(EdmundsCodes.TRANSMISSIONS_ID)) {
-                        responses[5] = jsonObject.getJSONObject("transmission").getString(EdmundsCodes.TRANSMISSIONS_DISPLAY);
-                        lookupMap.get(transmission).put(responses[5], jsonObject.getJSONObject("transmission").getString(EdmundsCodes.TRANSMISSIONS_ID));
-                        styleMap.get(transmission).put(responses[5], jsonObject.getJSONArray("years").getJSONObject(0).getJSONArray("styles").getJSONObject(0).getString(EdmundsCodes.STYLES_ID));
+                    if (jsonObject.getJSONObject(EdmundsCodes.TRANSMISSION_BASE).has(EdmundsCodes.TRANSMISSION_DISPLAY) && jsonObject.getJSONObject(EdmundsCodes.TRANSMISSION_BASE).has(EdmundsCodes.TRANSMISSION_SEARCH)) {
+                        responses[5] = jsonObject.getJSONObject(EdmundsCodes.TRANSMISSION_BASE).getString(EdmundsCodes.TRANSMISSION_DISPLAY);
+                        lookupMap.get(transmission).put(responses[5], jsonObject.getJSONObject(EdmundsCodes.TRANSMISSION_BASE));
+                        styleMap.get(transmission).put(responses[5], jsonObject.getJSONArray(EdmundsCodes.YEAR_ARRAY).getJSONObject(0).getJSONArray(EdmundsCodes.STYLE_ARRAY).getJSONObject(0).getString(EdmundsCodes.STYLE_SEARCH));
                     }
                     return responses;
                 } finally {
@@ -269,7 +270,6 @@ public class AddVehicleActivity extends AppCompatActivity implements AdapterView
                         transmission.setVisibility(View.VISIBLE);
                     }
                 }
-
                 confirm.setEnabled(true);
                 findViewById(R.id.loadingPanel).setVisibility(View.GONE);
             }
@@ -290,7 +290,7 @@ public class AddVehicleActivity extends AppCompatActivity implements AdapterView
         @Override
         protected void onPreExecute() {
             spinner.setVisibility(View.GONE);
-            lookupMap.put(spinner, new HashMap<String, String>());
+            lookupMap.put(spinner, new HashMap<String, JSONObject>());
             styleMap.put(spinner, new HashMap<String, String>());
 
             if (findViewById(R.id.loadingPanel).getVisibility() == View.GONE)
@@ -341,16 +341,19 @@ public class AddVehicleActivity extends AppCompatActivity implements AdapterView
                                 String spinnerDisplay = jsonObject.getString(displayName);
                                 String spinnerSearch = jsonObject.getString(searchName);
 
+                                //Store the values to be used for this entry to look up further information
+                                lookupMap.get(spinner).put(spinnerDisplay, jsonObject);
+
                                 //Only display unique responses in the spinner
                                 if (!responses.contains(spinnerDisplay))
                                     responses.add(spinnerDisplay);
 
-                                //Store the values to be used for this entry to look up further information
-                                String currentSearchValues = lookupMap.get(spinner).get(spinnerDisplay);
-                                if (currentSearchValues == null)
-                                    lookupMap.get(spinner).put(spinnerDisplay, spinnerSearch);
-                                else
-                                    lookupMap.get(spinner).put(spinnerDisplay, currentSearchValues + "," + spinnerSearch);
+                                //Store the mulitple style ids for each trim type
+                                if (spinner == style) {
+                                    if (!styleList.containsKey(spinnerDisplay))
+                                        styleList.put(spinnerDisplay, new HashSet<String>());
+                                    styleList.get(spinnerDisplay).add(spinnerSearch);
+                                }
 
                                 //Store the styleIDs that correspond to this selection
                                 if (styleMap.containsKey(spinner)) {
@@ -398,7 +401,7 @@ public class AddVehicleActivity extends AppCompatActivity implements AdapterView
     /**
      *
      */
-    private class VehicleMaintenanceQuery extends AsyncTask<String, Void, ArrayList<String[]>> {
+    private class VehicleMaintenanceQuery extends AsyncTask<String, Void, ArrayList<MaintenanceAction>> {
 
         GarageDataSource garageDataSource;
         Vehicle vehicle;
@@ -419,7 +422,7 @@ public class AddVehicleActivity extends AppCompatActivity implements AdapterView
         /**
          *
          */
-        protected ArrayList<String[]> doInBackground(String... params) {
+        protected ArrayList<MaintenanceAction> doInBackground(String... params) {
             try {
                 URL url = new URL(EdmundsCodes.endpointVehicle + params[0] + "?" + EdmundsCodes.format + EdmundsCodes.api_key);
                 Log.d("REST", url.toString());
@@ -439,7 +442,7 @@ public class AddVehicleActivity extends AppCompatActivity implements AdapterView
                     //Query style info to get yearid value to query maintenance info
                     String yearid = "";
                     JSONObject jsonObject = new JSONObject(stringBuilder.toString());
-                    JSONArray responsesArray = jsonObject.getJSONArray("styles");
+                    JSONArray responsesArray = jsonObject.getJSONArray(EdmundsCodes.STYLE_ARRAY);
                     for (int i = 0; i < responsesArray.length(); i++) {
                         JSONObject jsonObject1 = responsesArray.getJSONObject(i);
                         //Find the style entry with matching ID value
@@ -461,33 +464,11 @@ public class AddVehicleActivity extends AppCompatActivity implements AdapterView
                     bufferedReader.close();
                     Log.d("INFO", stringBuilder.toString());
 
-                    ArrayList<String[]> response = new ArrayList<String[]>();
+                    ArrayList<MaintenanceAction> response = new ArrayList<MaintenanceAction>();
                     jsonObject = new JSONObject(stringBuilder.toString());
                     responsesArray = jsonObject.getJSONArray("actionHolder");
                     for (int i = 0; i < responsesArray.length(); i++) {
-                        JSONObject jsonObject1 = responsesArray.getJSONObject(i);
-                        String engineCode = "";
-                        String transmissionCode = "";
-                        String intervalMileage = "0";
-                        String frequency = "0";
-                        String action = "";
-                        String item = "";
-                        String itemDescription = "";
-                        if (jsonObject1.has("engineCode"))
-                            engineCode = jsonObject1.getString("engineCode");
-                        if (jsonObject1.has("transmissionCode"))
-                            transmissionCode = jsonObject1.getString("transmissionCode");
-                        if (jsonObject1.has("intervalMileage"))
-                            intervalMileage = jsonObject1.getString("intervalMileage");
-                        if (jsonObject1.has("frequency"))
-                            frequency = jsonObject1.getString("frequency");
-                        if (jsonObject1.has("action"))
-                            action = jsonObject1.getString("action");
-                        if (jsonObject1.has("item"))
-                            item = jsonObject1.getString("item");
-                        if (jsonObject1.has("itemDescription"))
-                            itemDescription = jsonObject1.getString("itemDescription");
-                        response.add(new String[]{engineCode, transmissionCode, intervalMileage, frequency, action, item, itemDescription});
+                        response.add(new MaintenanceAction(responsesArray.getJSONObject(i)));
                     }
                     return response;
                 } finally {
@@ -502,11 +483,11 @@ public class AddVehicleActivity extends AppCompatActivity implements AdapterView
         @Override
         /**
          */
-        protected void onPostExecute(ArrayList<String[]> response) {
+        protected void onPostExecute(ArrayList<MaintenanceAction> response) {
             super.onPostExecute(response);
             for (int i = 0; i < response.size(); i++) {
-                String[] entry = response.get(i);
-                garageDataSource.insertMaintenance(vehicle, entry[0], entry[1], entry[2], entry[3], entry[4], entry[5], entry[6]);
+                MaintenanceAction maintenanceAction = response.get(i);
+                garageDataSource.insertMaintenance(vehicle, maintenanceAction.getEngineCode(), maintenanceAction.getTransmissionCode(), maintenanceAction.getIntervalMileage(), maintenanceAction.getFrequency(), maintenanceAction.getAction(), maintenanceAction.getItem(), maintenanceAction.getItemDescription());
             }
             garageDataSource.close();
             findViewById(R.id.loadingPanel).setVisibility(View.GONE);
@@ -521,7 +502,14 @@ public class AddVehicleActivity extends AppCompatActivity implements AdapterView
      * Return the niceName value used for searching REST API from display name value for a given spinner
      */
     public String lookup(Spinner spinner) {
-        return lookupMap.get(spinner).get(spinner.getSelectedItem());
+        if (spinner == make)
+            return new Make(lookupMap.get(spinner).get(spinner.getSelectedItem())).searchValue();
+        else if (spinner == model)
+            return new Model(lookupMap.get(spinner).get(spinner.getSelectedItem())).searchValue();
+        else if (spinner == year)
+            return new Year(lookupMap.get(spinner).get(spinner.getSelectedItem())).searchValue();
+        else
+            return TextUtils.join(",", styleList.get(spinner.getSelectedItem()));
     }
 
     /**
@@ -545,17 +533,17 @@ public class AddVehicleActivity extends AppCompatActivity implements AdapterView
      */
     public void query(Spinner spinner) {
         if (spinner == make)
-            new SpinnerQuery(spinner).execute(new String[]{"", EdmundsCodes.MAKES_QUERY, "", EdmundsCodes.MAKES_ARRAY, EdmundsCodes.MAKES_DISPLAY, EdmundsCodes.MAKES_ID});
+            new SpinnerQuery(spinner).execute(new String[]{"", EdmundsCodes.MAKE_QUERY, "", EdmundsCodes.MAKE_ARRAY, EdmundsCodes.MAKE_DISPLAY, EdmundsCodes.MAKE_SEARCH});
         else if (spinner == model)
-            new SpinnerQuery(spinner).execute(new String[]{lookup(make) + "/", EdmundsCodes.MODELS_QUERY, "", EdmundsCodes.MODELS_ARRAY, EdmundsCodes.MODELS_DISPLAY, EdmundsCodes.MODELS_ID});
+            new SpinnerQuery(spinner).execute(new String[]{lookup(make) + "/", EdmundsCodes.MODEL_QUERY, "", EdmundsCodes.MODEL_ARRAY, EdmundsCodes.MODEL_DISPLAY, EdmundsCodes.MODEL_SEARCH});
         else if (spinner == year)
-            new SpinnerQuery(spinner).execute(new String[]{lookup(make) + "/" + lookup(model) + "/", EdmundsCodes.YEARS_QUERY, "", EdmundsCodes.YEARS_ARRAY, EdmundsCodes.YEARS_DISPLAY, EdmundsCodes.YEARS_ID});
+            new SpinnerQuery(spinner).execute(new String[]{lookup(make) + "/" + lookup(model) + "/", EdmundsCodes.YEAR_QUERY, "", EdmundsCodes.YEAR_ARRAY, EdmundsCodes.YEAR_DISPLAY, EdmundsCodes.YEAR_SEARCH});
         else if (spinner == style)
-            new SpinnerQuery(spinner).execute(new String[]{lookup(make) + "/" + lookup(model) + "/", lookup(year), "/" + EdmundsCodes.STYLES_QUERY, EdmundsCodes.STYLES_ARRAY, EdmundsCodes.STYLES_DISPLAY, EdmundsCodes.STYLES_ID});
+            new SpinnerQuery(spinner).execute(new String[]{lookup(make) + "/" + lookup(model) + "/", lookup(year), "/" + EdmundsCodes.STYLE_QUERY, EdmundsCodes.STYLE_ARRAY, EdmundsCodes.STYLE_DISPLAY, EdmundsCodes.STYLE_SEARCH});
         else if (spinner == engine)
-            new SpinnerQuery(spinner).execute(new String[]{"styles/", lookup(style), "/" + EdmundsCodes.ENGINES_QUERY, EdmundsCodes.ENGINES_ARRAY, EdmundsCodes.ENGINES_DISPLAY, EdmundsCodes.ENGINES_ID});
+            new SpinnerQuery(spinner).execute(new String[]{"styles/", lookup(style), "/" + EdmundsCodes.ENGINE_QUERY, EdmundsCodes.ENGINE_ARRAY, EdmundsCodes.ENGINE_DISPLAY, EdmundsCodes.ENGINE_SEARCH});
         else if (spinner == transmission)
-            new SpinnerQuery(spinner).execute(new String[]{"styles/", lookup(style), "/" + EdmundsCodes.TRANSMISSIONS_QUERY, EdmundsCodes.TRANSMISSIONS_ARRAY, EdmundsCodes.TRANSMISSIONS_DISPLAY, EdmundsCodes.TRANSMISSIONS_ID});
+            new SpinnerQuery(spinner).execute(new String[]{"styles/", lookup(style), "/" + EdmundsCodes.TRANSMISSION_QUERY, EdmundsCodes.TRANSMISSION_ARRAY, EdmundsCodes.TRANSMISSION_DISPLAY, EdmundsCodes.TRANSMISSION_SEARCH});
     }
 
     /**
@@ -590,14 +578,9 @@ public class AddVehicleActivity extends AppCompatActivity implements AdapterView
             GarageDataSource garageDataSource = new GarageDataSource(this);
             garageDataSource.open();
 
-            //TODO proper lookup and storage of vehicle attributes
-            String engineText = "";
-            if (lookup(engine) != null)
-                engineText = lookup(engine).split(",")[0];
-
-            Vehicle vehicle = garageDataSource.insertVehicle((String) year.getSelectedItem(), (String) make.getSelectedItem(), (String) model.getSelectedItem(), (String) style.getSelectedItem(), engineText, (String) transmission.getSelectedItem(), mileageTotal.getText().toString(), mileageAnnual.getText().toString());
+            Vehicle vehicle = garageDataSource.insertVehicle((String) year.getSelectedItem(), (String) make.getSelectedItem(), (String) model.getSelectedItem(), (String) style.getSelectedItem(), new Engine(lookupMap.get(engine).get(engine.getSelectedItem())).saveValue(), (String) transmission.getSelectedItem(), mileageTotal.getText().toString(), mileageAnnual.getText().toString());
             VehicleMaintenanceQuery vehicleMaintenanceQuery = new VehicleMaintenanceQuery(garageDataSource, vehicle);
-            vehicleMaintenanceQuery.execute(new String[]{lookup(make) + "/" + lookup(model) + "/" + lookup(year) + "/" + EdmundsCodes.STYLES_QUERY, commonStyleID()});
+            vehicleMaintenanceQuery.execute(new String[]{lookup(make) + "/" + lookup(model) + "/" + lookup(year) + "/" + EdmundsCodes.STYLE_QUERY, commonStyleID()});
         }
     }
 }

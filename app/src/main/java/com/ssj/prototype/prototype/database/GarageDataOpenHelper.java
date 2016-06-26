@@ -11,51 +11,54 @@ import android.util.Log;
 public class GarageDataOpenHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "garage.db";
-    private static final int DATABASE_VERSION = 10;
+    private static final int DATABASE_VERSION = 11;
 
     public static final String TABLE_NAME_GARAGE = "garage";
-    public static final String COLUMN_ID = "_id";
-    public static final String COLUMN_YEAR = "year";
-    public static final String COLUMN_MAKE = "make";
-    public static final String COLUMN_MODEL = "model";
-    public static final String COLUMN_STYLE = "style";
-    public static final String COLUMN_ENGINE = "engine";
-    public static final String COLUMN_TRANSMISSION = "transmission";
-    public static final String COLUMN_MILEAGE_TOTAL = "mileageTotal";
-    public static final String COLUMN_MILEAGE_ANNUAL = "mileageAnnual";
+    public static final String COLUMN_GARAGE_ID = "_id";
+    public static final String COLUMN_GARAGE_YEAR = "year";
+    public static final String COLUMN_GARAGE_MAKE = "make";
+    public static final String COLUMN_GARAGE_MODEL = "model";
+    public static final String COLUMN_GARAGE_STYLE_ID = "style_id";
+    public static final String COLUMN_GARAGE_STYLE_TRIM = "trim";
+    public static final String COLUMN_GARAGE_ENGINE_ID = "engine_id";
+    public static final String COLUMN_GARAGE_ENGINE_CODE = "engineCode";
+    public static final String COLUMN_GARAGE_TRANSMISSION_ID = "transmission_id";
+    public static final String COLUMN_GARAGE_TRANSMISSION_TYPE = "transmissionType";
+    public static final String COLUMN_GARAGE_MILEAGE_TOTAL = "mileageTotal";
+    public static final String COLUMN_GARAGE_MILEAGE_ANNUAL = "mileageAnnual";
 
     public static final String TABLE_NAME_MAINTENANCE = "maintenance";
-    public static final String COLUMN_VEHICLE_ID = "_id";
-    public static final String COLUMN_ENGINE_CODE = "engineCode";
-    public static final String COLUMN_TRANSMISSION_CODE = "transmissionCode";
-    public static final String COLUMN_INTERVAL_MILEAGE = "intervalMileage";
-    public static final String COLUMN_FREQUENCY = "frequency";
-    public static final String COLUMN_ACTION = "action";
-    public static final String COLUMN_ITEM = "item";
-    public static final String COLUMN_ITEM_DESCRIPTION = "itemDescription";
+    public static final String COLUMN_MAINTENANCE_VEHICLE_ID = "_id";
+    public static final String COLUMN_MAINTENANCE_ENGINE_CODE = "engineCode";
+    public static final String COLUMN_MAINTENANCE_TRANSMISSION_CODE = "transmissionCode";
+    public static final String COLUMN_MAINTENANCE_INTERVAL_MILEAGE = "intervalMileage";
+    public static final String COLUMN_MAINTENANCE_FREQUENCY = "frequency";
+    public static final String COLUMN_MAINTENANCE_ACTION = "action";
+    public static final String COLUMN_MAINTENANCE_ITEM = "item";
+    public static final String COLUMN_MAINTENANCE_ITEM_DESCRIPTION = "itemDescription";
 
     private static final String TABLE_CREATE_GARAGE = "CREATE TABLE " + TABLE_NAME_GARAGE
-            + " (" + COLUMN_ID + " integer primary key autoincrement, "
-            + COLUMN_YEAR + " TEXT,"
-            + COLUMN_MAKE + " TEXT,"
-            + COLUMN_MODEL + " TEXT,"
-            + COLUMN_STYLE + " TEXT,"
-            + COLUMN_ENGINE + " TEXT,"
-            + COLUMN_TRANSMISSION + " TEXT,"
-            + COLUMN_MILEAGE_TOTAL + " integer,"
-            + COLUMN_MILEAGE_ANNUAL + " integer"
+            + " (" + COLUMN_GARAGE_ID + " integer primary key autoincrement, "
+            + COLUMN_GARAGE_YEAR + " TEXT,"
+            + COLUMN_GARAGE_MAKE + " TEXT,"
+            + COLUMN_GARAGE_MODEL + " TEXT,"
+            + COLUMN_GARAGE_STYLE_TRIM + " TEXT,"
+            + COLUMN_GARAGE_ENGINE_CODE + " TEXT,"
+            + COLUMN_GARAGE_TRANSMISSION_TYPE + " TEXT,"
+            + COLUMN_GARAGE_MILEAGE_TOTAL + " integer,"
+            + COLUMN_GARAGE_MILEAGE_ANNUAL + " integer"
             + ");";
 
     private static final String TABLE_CREATE_MAINTENANCE = "CREATE TABLE " + TABLE_NAME_MAINTENANCE
-            + " (" + COLUMN_VEHICLE_ID + " integer"
-            + "FOREIGN KEY REFERENCES " + TABLE_NAME_GARAGE + "(" + COLUMN_ID + "),"
-            + COLUMN_ENGINE_CODE + " TEXT,"
-            + COLUMN_TRANSMISSION_CODE + " TEXT,"
-            + COLUMN_INTERVAL_MILEAGE + " integer,"
-            + COLUMN_FREQUENCY + " integer,"
-            + COLUMN_ACTION + " TEXT,"
-            + COLUMN_ITEM + " TEXT,"
-            + COLUMN_ITEM_DESCRIPTION + " TEXT"
+            + " (" + COLUMN_MAINTENANCE_VEHICLE_ID + " integer"
+            + "FOREIGN KEY REFERENCES " + TABLE_NAME_GARAGE + "(" + COLUMN_GARAGE_ID + "),"
+            + COLUMN_MAINTENANCE_ENGINE_CODE + " TEXT,"
+            + COLUMN_MAINTENANCE_TRANSMISSION_CODE + " TEXT,"
+            + COLUMN_MAINTENANCE_INTERVAL_MILEAGE + " integer,"
+            + COLUMN_MAINTENANCE_FREQUENCY + " integer,"
+            + COLUMN_MAINTENANCE_ACTION + " TEXT,"
+            + COLUMN_MAINTENANCE_ITEM + " TEXT,"
+            + COLUMN_MAINTENANCE_ITEM_DESCRIPTION + " TEXT"
             + ");";
 
     private static final String TABLE_DROP_GARAGE = "DROP TABLE IF EXISTS " + TABLE_NAME_GARAGE;

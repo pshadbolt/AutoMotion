@@ -27,17 +27,6 @@
         android:layout_centerHorizontal="true"
         android:layout_centerVertical="true"
         android:layout_marginTop="67dp"
-        android:onClick="populateDatabaseVehicles"
-        android:text="Populate Vehicle Database" />
-
-    <Button
-        android:id="@+id/button3"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/button2"
-        android:layout_centerHorizontal="true"
-        android:layout_centerVertical="true"
-        android:layout_marginTop="67dp"
         android:onClick="deleteDatabaseGarage"
         android:text="Delete Garage Database" />
 

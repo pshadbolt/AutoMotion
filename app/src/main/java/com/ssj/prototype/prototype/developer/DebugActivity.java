@@ -27,42 +27,16 @@ public class DebugActivity extends AppCompatActivity {
 
         // Create the database connections
         garageDatasource = new GarageDataSource(this);
-        garageDatasource.open();
     }
 
     public void deleteDatabaseVehicles(View view) {
         Toast.makeText(this, "Vehicle Database Deleted", Toast.LENGTH_LONG).show();
     }
 
-    public void populateDatabaseVehicles(View view) {
-
-        //Load values from local csv file
-        InputStream ins = getResources().openRawResource(getResources().getIdentifier("vehicledatabase", "raw", getPackageName()));
-        BufferedReader reader = null;
-        reader = new BufferedReader(new InputStreamReader(ins, Charset.forName("UTF-8")));
-
-        String line = "";
-        Vehicle vehicle = new Vehicle();
-        StringTokenizer st = null;
-        try {
-            while ((line = reader.readLine()) != null) {
-                st = new StringTokenizer(line, ",");
-                vehicle.setYear(st.nextToken());
-                vehicle.setMake(st.nextToken());
-                vehicle.setModel(st.nextToken());
-                if (st.hasMoreTokens())
-                    vehicle.setStyle(st.nextToken());
-                else
-                    vehicle.setStyle("");
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        Toast.makeText(this, "Vehicle Database Loaded", Toast.LENGTH_LONG).show();
-    }
-
     public void deleteDatabaseGarage(View view) {
+        garageDatasource.open();
         garageDatasource.drop();
+        garageDatasource.close();
         Toast.makeText(this, "Garage Database Deleted", Toast.LENGTH_LONG).show();
     }
 }
