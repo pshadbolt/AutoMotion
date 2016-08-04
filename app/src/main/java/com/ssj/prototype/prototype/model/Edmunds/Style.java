@@ -13,6 +13,18 @@ public class Style implements EdmundsAttribute {
     private String name;
     private String trim;
 
+    public String getId() {
+        return id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getTrim() {
+        return trim;
+    }
+
     public Style(String id, String name, String trim) {
         this.id = id;
         this.name = name;

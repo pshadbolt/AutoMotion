@@ -20,6 +20,8 @@ import com.ssj.prototype.prototype.model.Edmunds.Engine;
 import com.ssj.prototype.prototype.model.Edmunds.MaintenanceAction;
 import com.ssj.prototype.prototype.model.Edmunds.Make;
 import com.ssj.prototype.prototype.model.Edmunds.Model;
+import com.ssj.prototype.prototype.model.Edmunds.Style;
+import com.ssj.prototype.prototype.model.Edmunds.Transmission;
 import com.ssj.prototype.prototype.model.Edmunds.Year;
 import com.ssj.prototype.prototype.model.Vehicle;
 
@@ -46,8 +48,8 @@ public class AddVehicleActivity extends AppCompatActivity implements AdapterView
     protected Spinner engine;
     protected Spinner transmission;
 
-    protected EditText mileageTotal;
-    protected EditText mileageAnnual;
+    protected EditText mileageTotalText;
+    protected EditText mileageAnnualText;
 
     protected Button cancel;
     protected Button confirm;
@@ -57,7 +59,6 @@ public class AddVehicleActivity extends AppCompatActivity implements AdapterView
     private int state = 1;
     private HashMap<Spinner, HashMap<String, JSONObject>> lookupMap;
     private HashMap<String, HashSet<String>> styleList;
-    //TODO change this to individual lists for engine and transmission
     private HashMap<Spinner, HashMap<String, String>> styleMap;
 
     @Override
@@ -85,8 +86,8 @@ public class AddVehicleActivity extends AppCompatActivity implements AdapterView
         styleMap.put(engine, new HashMap<String, String>());
         styleMap.put(transmission, new HashMap<String, String>());
 
-        mileageTotal = (EditText) findViewById(R.id.editText1);
-        mileageAnnual = (EditText) findViewById(R.id.editText2);
+        mileageTotalText = (EditText) findViewById(R.id.editText1);
+        mileageAnnualText = (EditText) findViewById(R.id.editText2);
 
         cancel = (Button) findViewById(R.id.cancel);
         confirm = (Button) findViewById(R.id.confirm);
@@ -516,16 +517,24 @@ public class AddVehicleActivity extends AppCompatActivity implements AdapterView
      * Find the first common value for style ID based on the engine and transmission selections
      */
     public String commonStyleID() {
+
+        String styleID=null;
+
         if (styleMap.get(engine).get(engine.getSelectedItem()) != null) {
             ArrayList<String> styles_engine = new ArrayList<String>(Arrays.asList(styleMap.get(engine).get(engine.getSelectedItem()).split(",")));
             ArrayList<String> styles_transmission = new ArrayList<String>(Arrays.asList(styleMap.get(transmission).get(transmission.getSelectedItem()).split(",")));
             for (String id : styles_engine) {
                 if (styles_transmission.contains(id)) {
-                    return id;
+                    styleID= id;
+                    break;
                 }
             }
         }
-        return styleMap.get(transmission).get(transmission.getSelectedItem()).split(",")[0];
+        styleID = styleMap.get(transmission).get(transmission.getSelectedItem()).split(",")[0];
+
+
+
+        return styleID;
     }
 
     /**
@@ -575,12 +584,24 @@ public class AddVehicleActivity extends AppCompatActivity implements AdapterView
             cancel.setText(R.string.button_back);
             confirm.setText(R.string.button_confirm);
         } else if (state == 2) {
+
+            //Error catching for empty fields
+            String mileageTotal = mileageTotalText.getText().toString();
+            String mileageAnnual = mileageAnnualText.getText().toString();
+            if (mileageTotal.length() == 0)
+                mileageTotal = "0";
+            if (mileageAnnual.length() == 0)
+                mileageAnnual = "0";
+
             GarageDataSource garageDataSource = new GarageDataSource(this);
             garageDataSource.open();
 
-            Vehicle vehicle = garageDataSource.insertVehicle((String) year.getSelectedItem(), (String) make.getSelectedItem(), (String) model.getSelectedItem(), (String) style.getSelectedItem(), new Engine(lookupMap.get(engine).get(engine.getSelectedItem())).saveValue(), (String) transmission.getSelectedItem(), mileageTotal.getText().toString(), mileageAnnual.getText().toString());
+            //TODO resolve Style JSONObject
+            Vehicle vehicle = garageDataSource.insertVehicle(new Year(lookupMap.get(year).get(year.getSelectedItem())), new Make(lookupMap.get(make).get(make.getSelectedItem())), new Model(lookupMap.get(model).get(model.getSelectedItem())), new Style(lookupMap.get(style).get(style.getSelectedItem())), new Engine(lookupMap.get(engine).get(engine.getSelectedItem())), new Transmission(lookupMap.get(transmission).get(transmission.getSelectedItem())), mileageTotal, mileageAnnual);
             VehicleMaintenanceQuery vehicleMaintenanceQuery = new VehicleMaintenanceQuery(garageDataSource, vehicle);
             vehicleMaintenanceQuery.execute(new String[]{lookup(make) + "/" + lookup(model) + "/" + lookup(year) + "/" + EdmundsCodes.STYLE_QUERY, commonStyleID()});
+
+            garageDataSource.close();
         }
     }
 }

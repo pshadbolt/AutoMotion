@@ -19,9 +19,9 @@ public class GarageDataOpenHelper extends SQLiteOpenHelper {
     public static final String COLUMN_GARAGE_MAKE = "make";
     public static final String COLUMN_GARAGE_MODEL = "model";
     public static final String COLUMN_GARAGE_STYLE_ID = "style_id";
-    public static final String COLUMN_GARAGE_STYLE_TRIM = "trim";
+    public static final String COLUMN_GARAGE_STYLE_TRIM = "style_trim";
     public static final String COLUMN_GARAGE_ENGINE_ID = "engine_id";
-    public static final String COLUMN_GARAGE_ENGINE_CODE = "engineCode";
+    public static final String COLUMN_GARAGE_ENGINE_CODE = "engine_code";
     public static final String COLUMN_GARAGE_TRANSMISSION_ID = "transmission_id";
     public static final String COLUMN_GARAGE_TRANSMISSION_TYPE = "transmissionType";
     public static final String COLUMN_GARAGE_MILEAGE_TOTAL = "mileageTotal";

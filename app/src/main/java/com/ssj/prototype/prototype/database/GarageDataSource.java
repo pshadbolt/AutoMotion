@@ -9,6 +9,12 @@ import android.database.sqlite.SQLiteDatabase;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
+import com.ssj.prototype.prototype.model.Edmunds.Engine;
+import com.ssj.prototype.prototype.model.Edmunds.Make;
+import com.ssj.prototype.prototype.model.Edmunds.Model;
+import com.ssj.prototype.prototype.model.Edmunds.Style;
+import com.ssj.prototype.prototype.model.Edmunds.Transmission;
+import com.ssj.prototype.prototype.model.Edmunds.Year;
 import com.ssj.prototype.prototype.model.Vehicle;
 
 import java.util.ArrayList;
@@ -44,13 +50,6 @@ public class GarageDataSource {
     }
 
     public Vehicle insertVehicle(String year, String make, String model, String style, String engine, String transmission, String mileageTotal, String mileageAnnual) {
-
-        //Error catching for empty fields
-        if (mileageTotal.length() == 0)
-            mileageTotal = "0";
-        if (mileageAnnual.length() == 0)
-            mileageAnnual = "0";
-
         ContentValues values = new ContentValues();
         values.put(GarageDataOpenHelper.COLUMN_GARAGE_YEAR, year);
         values.put(GarageDataOpenHelper.COLUMN_GARAGE_MAKE, make);
@@ -58,6 +57,21 @@ public class GarageDataSource {
         values.put(GarageDataOpenHelper.COLUMN_GARAGE_STYLE_TRIM, style);
         values.put(GarageDataOpenHelper.COLUMN_GARAGE_ENGINE_CODE, engine);
         values.put(GarageDataOpenHelper.COLUMN_GARAGE_TRANSMISSION_TYPE, transmission);
+        values.put(GarageDataOpenHelper.COLUMN_GARAGE_MILEAGE_TOTAL, Integer.parseInt(mileageTotal));
+        values.put(GarageDataOpenHelper.COLUMN_GARAGE_MILEAGE_ANNUAL, Integer.parseInt(mileageAnnual));
+        Log.d("INSERT", values.toString());
+        long id = database.insert(GarageDataOpenHelper.TABLE_NAME_GARAGE, null, values);
+        return new Vehicle(id, year, make, model, style, engine, transmission);
+    }
+
+    public Vehicle insertVehicle(Year year, Make make, Model model, Style style, Engine engine, Transmission transmission, String mileageTotal, String mileageAnnual) {
+        ContentValues values = new ContentValues();
+        values.put(GarageDataOpenHelper.COLUMN_GARAGE_YEAR, year.getYear());
+        values.put(GarageDataOpenHelper.COLUMN_GARAGE_MAKE, make.getName());
+        values.put(GarageDataOpenHelper.COLUMN_GARAGE_MODEL, model.getName());
+        values.put(GarageDataOpenHelper.COLUMN_GARAGE_STYLE_TRIM, style.getTrim());
+        values.put(GarageDataOpenHelper.COLUMN_GARAGE_ENGINE_CODE, engine.getCode());
+        values.put(GarageDataOpenHelper.COLUMN_GARAGE_TRANSMISSION_TYPE, transmission.getTransmissionType());
         values.put(GarageDataOpenHelper.COLUMN_GARAGE_MILEAGE_TOTAL, Integer.parseInt(mileageTotal));
         values.put(GarageDataOpenHelper.COLUMN_GARAGE_MILEAGE_ANNUAL, Integer.parseInt(mileageAnnual));
         Log.d("INSERT", values.toString());

@@ -12,6 +12,14 @@ public class Make implements EdmundsAttribute {
     private String name;
     private String niceName;
 
+    public String getNiceName() {
+        return niceName;
+    }
+
+    public String getName() {
+        return name;
+    }
+
     public Make(String name, String niceName) {
         this.name = name;
         this.niceName = niceName;

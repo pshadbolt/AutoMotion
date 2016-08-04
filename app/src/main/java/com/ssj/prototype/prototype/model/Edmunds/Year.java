@@ -9,6 +9,10 @@ import org.json.JSONObject;
  */
 public class Year implements EdmundsAttribute {
 
+    public String getYear() {
+        return year;
+    }
+
     private String year;
 
     public Year(String year) {

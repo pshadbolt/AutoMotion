@@ -8,7 +8,9 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
@@ -55,18 +57,12 @@ public class GarageActivity extends AppCompatActivity {
 
         // Add the listView listener
         ListView listView = (ListView) findViewById(R.id.listView);
+        registerForContextMenu(listView);
+
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 clickOnVehicle(position);
-            }
-        });
-
-        listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
-            @Override
-            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long arg3) {
-                longClickOnVehicle(position);
-                return true;
             }
         });
 
@@ -77,7 +73,7 @@ public class GarageActivity extends AppCompatActivity {
                 int id = menuItem.getItemId();
 
                 if (id == R.id.action_vin_lookup) {
-                    showInputDialog();
+                    showVINInputDialog();
                     return true;
                 } else if (id == R.id.action_manual_lookup) {
                     startActivity(new Intent(getBaseContext(), AddVehicleActivity.class));
@@ -86,6 +82,28 @@ public class GarageActivity extends AppCompatActivity {
                 return true;
             }
         });
+    }
+
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo){
+        super.onCreateContextMenu(menu,v,menuInfo);
+
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.context_garage,menu);
+    }
+
+    @Override
+    public boolean onContextItemSelected(MenuItem item){
+        AdapterView.AdapterContextMenuInfo acmi = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
+        if(item.getItemId() == R.id.menu_item1){
+
+        }else if(item.getItemId() == R.id.menu_item2){
+
+        }else if(item.getItemId() == R.id.menu_item3){
+            deleteVehicle(acmi.position);
+            return true;
+        }
+        return false;
     }
 
     @Override
@@ -112,8 +130,6 @@ public class GarageActivity extends AppCompatActivity {
         public VerifyVIN(String VIN, RelativeLayout loadingPanel, AlertDialog dialog) {
             this.dialog = dialog;
             this.loadingPanel = loadingPanel;
-            //this.VIN = "1G1PK5S9XB7170032";
-            //this.VIN = "AAAAA5S9XB7170032";
             this.VIN = VIN;
         }
 
@@ -186,7 +202,7 @@ public class GarageActivity extends AppCompatActivity {
     /**
      * @param position
      */
-    private void longClickOnVehicle(int position) {
+    private void deleteVehicle(int position) {
         garageDatasource.open();
         garageDatasource.deleteVehicle(vehicles.get(position).getId());
         garageDatasource.close();
@@ -194,7 +210,10 @@ public class GarageActivity extends AppCompatActivity {
         populateList();
     }
 
-    protected void showInputDialog() {
+    /**
+     *
+     */
+    protected void showVINInputDialog() {
 
         // get prompts.xml view
         LayoutInflater layoutInflater = LayoutInflater.from(GarageActivity.this);
