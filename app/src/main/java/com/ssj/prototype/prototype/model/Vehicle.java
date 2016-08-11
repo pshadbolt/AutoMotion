@@ -112,23 +112,40 @@ public class Vehicle {
         this.make = new Make(make, null);
         this.model = new Model(model, null);
         this.style = new Style(null, null, style);
-        this.engine = new Engine(0, engine);
+        this.engine = new Engine(engine, 0, 0);
         this.transmission = new Transmission(transmission);
     }
 
     public Vehicle(Cursor cursor) {
+        /**
+         GarageDataOpenHelper.COLUMN_GARAGE_ID
+         GarageDataOpenHelper.COLUMN_GARAGE_YEAR
+         GarageDataOpenHelper.COLUMN_GARAGE_MAKE
+         GarageDataOpenHelper.COLUMN_GARAGE_MODEL
+         GarageDataOpenHelper.COLUMN_GARAGE_STYLE_TRIM
+         GarageDataOpenHelper.COLUMN_GARAGE_ENGINE_CODE
+         GarageDataOpenHelper.COLUMN_GARAGE_ENGINE_HORSEPOWER
+         GarageDataOpenHelper.COLUMN_GARAGE_ENGINE_SIZE
+         GarageDataOpenHelper.COLUMN_GARAGE_TRANSMISSION_TYPE
+         GarageDataOpenHelper.COLUMN_GARAGE_MILEAGE_TOTAL
+         GarageDataOpenHelper.COLUMN_GARAGE_MILEAGE_ANNUAL}
+         **/
         this.id = cursor.getLong(0);
         this.year = new Year(cursor.getString(1));
         this.make = new Make(cursor.getString(2), null);
         this.model = new Model(cursor.getString(3), null);
         this.style = new Style(null, null, cursor.getString(4));
-        this.engine = new Engine(0, cursor.getString(5));
-        this.transmission = new Transmission(cursor.getString(6));
-        this.mileageTotal = cursor.getInt(7);
-        this.mileageAnnual = cursor.getInt(8);
+        this.engine = new Engine(cursor.getString(5), cursor.getInt(6), cursor.getInt(7));
+        this.transmission = new Transmission(cursor.getString(8));
+        this.mileageTotal = cursor.getInt(9);
+        this.mileageAnnual = cursor.getInt(10);
     }
 
     public String toString() {
         return this.year.displayValue() + "," + this.make.displayValue() + "," + this.model.displayValue() + "," + this.style.displayValue();
+    }
+
+    public String specs() {
+        return this.engine.getSize() + System.getProperty("line.separator") + this.engine.getHorsepower();
     }
 }

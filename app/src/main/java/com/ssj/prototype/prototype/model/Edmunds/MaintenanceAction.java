@@ -80,6 +80,4 @@ public class MaintenanceAction {
         this.partUnits = JSONHelper.getString(jsonObject, "partUnits");
         this.driveType = JSONHelper.getString(jsonObject, "driveType");
     }
-
-
 }

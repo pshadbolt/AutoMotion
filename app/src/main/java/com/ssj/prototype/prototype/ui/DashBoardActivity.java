@@ -2,9 +2,6 @@ package com.ssj.prototype.prototype.ui;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
-import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -17,7 +14,6 @@ import android.widget.ListView;
 
 import com.ssj.prototype.prototype.R;
 import com.ssj.prototype.prototype.adapters.DashBoardListArrayAdapter;
-import com.ssj.prototype.prototype.adapters.GarageListArrayAdapter;
 import com.ssj.prototype.prototype.database.GarageDataSource;
 import com.ssj.prototype.prototype.developer.DebugActivity;
 
@@ -114,7 +110,7 @@ public class DashBoardActivity extends AppCompatActivity implements NavigationVi
      */
     private void populateList() {
         garageDatasource.open();
-        ((ListView) findViewById(R.id.listView)).setAdapter(new DashBoardListArrayAdapter(this, garageDatasource.getMaintenanceActivities(), null));
+        ((ListView) findViewById(R.id.listView)).setAdapter(new DashBoardListArrayAdapter(this, garageDatasource.getAllMaintenanceActivities(), null));
         garageDatasource.close();
     }
 }

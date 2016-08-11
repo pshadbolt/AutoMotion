@@ -36,6 +36,7 @@ public class GarageTestManual {
         while (true) {
             try {
                 onData(anything()).inAdapterView(withId(R.id.listView)).atPosition(0).perform(longClick());
+                onView(withText("Delete Vehicle")).perform(click());
             } catch (Exception e) {
                 return;
             }
@@ -89,6 +90,12 @@ public class GarageTestManual {
     @Test
     public void addRemoveTest4() {
         addRemoveVehicle("Tesla", "Model X", "2016", "90D", null, "DIRECT_DRIVE", "45000", "20000");
+        onData(hasToString(startsWith("2016,Tesla,Model X,90D"))).inAdapterView(withId(R.id.listView)).perform(longClick());
+    }
+
+    @Test
+    public void addRemoveTest5() {
+        addRemoveVehicle("Chevrolet", "Astro", "2005", "Base", "4.3", "AUTOMATIC", "10000", "1000");
         onData(hasToString(startsWith("2016,Tesla,Model X,90D"))).inAdapterView(withId(R.id.listView)).perform(longClick());
     }
 }

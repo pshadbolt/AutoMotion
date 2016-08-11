@@ -96,10 +96,6 @@ public class GarageActivity extends AppCompatActivity {
     public boolean onContextItemSelected(MenuItem item){
         AdapterView.AdapterContextMenuInfo acmi = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
         if(item.getItemId() == R.id.menu_item1){
-
-        }else if(item.getItemId() == R.id.menu_item2){
-
-        }else if(item.getItemId() == R.id.menu_item3){
             deleteVehicle(acmi.position);
             return true;
         }

@@ -31,5 +31,7 @@
     <string name="button_confirm">CONFIRM</string>
     <string name="button_submit">SUBMIT</string>
     <string name="toast_insufficent_characters">17 Characters Required</string>
+    <string name="title_activity_maintenance_schedule">MaintenanceScheduleActivity</string>
+    <string name="title_activity_vehicle_specs">VehicleSpecsActivity</string>
 
 </resources>

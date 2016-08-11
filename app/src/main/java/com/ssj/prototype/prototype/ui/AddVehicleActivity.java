@@ -486,6 +486,7 @@ public class AddVehicleActivity extends AppCompatActivity implements AdapterView
          */
         protected void onPostExecute(ArrayList<MaintenanceAction> response) {
             super.onPostExecute(response);
+            garageDataSource.open();
             for (int i = 0; i < response.size(); i++) {
                 MaintenanceAction maintenanceAction = response.get(i);
                 garageDataSource.insertMaintenance(vehicle, maintenanceAction.getEngineCode(), maintenanceAction.getTransmissionCode(), maintenanceAction.getIntervalMileage(), maintenanceAction.getFrequency(), maintenanceAction.getAction(), maintenanceAction.getItem(), maintenanceAction.getItemDescription());
@@ -493,7 +494,6 @@ public class AddVehicleActivity extends AppCompatActivity implements AdapterView
             garageDataSource.close();
             findViewById(R.id.loadingPanel).setVisibility(View.GONE);
             Toast.makeText(AddVehicleActivity.this, R.string.toast_vehicle_added, Toast.LENGTH_LONG).show();
-            //TODO Should finish be used?
             Log.i("COUNTER", "REST API CALLS: " + queryCounter);
             finish();
         }
@@ -531,9 +531,6 @@ public class AddVehicleActivity extends AppCompatActivity implements AdapterView
             }
         }
         styleID = styleMap.get(transmission).get(transmission.getSelectedItem()).split(",")[0];
-
-
-
         return styleID;
     }
 

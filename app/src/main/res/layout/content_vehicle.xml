@@ -12,26 +12,126 @@
     tools:context="com.ssj.prototype.prototype.ui.VehicleActivity"
     tools:showIn="@layout/activity_vehicle">
 
-    <TextView
-        android:id="@+id/textView0"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
-
-    <TextView
-        android:id="@+id/textView1"
+    <RelativeLayout
+        android:onClick="openMaintenanceSchedule"
+        android:id="@+id/layout_maintenance"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/textView0" />
+        android:layout_marginTop="20sp">
 
-    <ScrollView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_below="@+id/textView1">
+        <ImageButton
+            android:id="@+id/image_maintenance"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="5sp"
+            android:background="@null"
+            android:src="@drawable/ic_assignment_black_24dp" />
 
         <TextView
-            android:id="@+id/textView2"
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
-    </ScrollView>
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@id/image_maintenance"
+            android:text="Maintenance Schedule"
+            android:textSize="24sp" />
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/layout_repair"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/layout_maintenance"
+        android:layout_marginTop="20sp">
+
+        <ImageButton
+            android:id="@+id/image_repair"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="5sp"
+            android:background="@null"
+            android:src="@drawable/ic_build_black_24dp" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@id/image_repair"
+            android:text="Repair History"
+            android:textSize="24sp" />
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/layout_recall"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/layout_repair"
+        android:layout_marginTop="20sp">
+
+        <ImageButton
+            android:id="@+id/image_recall"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="5sp"
+            android:background="@null"
+            android:src="@drawable/ic_warning_black_24dp" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@id/image_recall"
+            android:text="Recall Information"
+            android:textSize="24sp" />
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:onClick="openVehicleSpecs"
+        android:id="@+id/layout_specs"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/layout_recall"
+        android:layout_marginTop="20sp">
+
+        <ImageButton
+            android:id="@+id/image_specs"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="5sp"
+            android:background="@null"
+            android:src="@drawable/ic_zoom_in_black_24dp" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@id/image_specs"
+            android:text="Vehicle Specs"
+            android:textSize="24sp" />
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/layout_photos"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/layout_specs"
+        android:layout_marginTop="20sp">
+
+        <ImageButton
+            android:id="@+id/image_photos"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="5sp"
+            android:background="@null"
+            android:src="@drawable/ic_camera_alt_black_24dp" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@id/image_photos"
+            android:text="Photos"
+            android:textSize="24sp" />
+
+    </RelativeLayout>
+
 
 </RelativeLayout>

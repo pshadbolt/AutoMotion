@@ -27,78 +27,22 @@ public class Engine implements EdmundsAttribute {
     private String code;
     private String compressorType;
 
-
-    public String getId() {
-        return id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public String getEquipmentType() {
-        return equipmentType;
-    }
-
-    public String getAvailability() {
-        return availability;
-    }
-
-    public int getCompressionRatio() {
-        return compressionRatio;
-    }
-
-    public int getCylinder() {
-        return cylinder;
-    }
-
-    public int getSize() {
-        return size;
-    }
-
-    public int getDisplacement() {
-        return displacement;
-    }
-
-    public String getConfiguration() {
-        return configuration;
-    }
-
-    public String getFuelType() {
-        return fuelType;
+    public String getCode() {
+        return code;
     }
 
     public int getHorsepower() {
         return horsepower;
     }
 
-    public int getTorque() {
-        return torque;
+    public int getSize() {
+        return size;
     }
 
-    public int getTotalValves() {
-        return totalValves;
-    }
-
-    public String getManufacturerEngineCode() {
-        return manufacturerEngineCode;
-    }
-
-    public String getType() {
-        return type;
-    }
-
-    public String getCode() {
-        return code;
-    }
-
-    public String getCompressorType() {
-        return compressorType;
-    }
-
-    public Engine(int size, String code) {
-        this.size = size;
+    public Engine(String code, int horsepower, int size) {
         this.code = code;
+        this.size = size;
+        this.horsepower = horsepower;
     }
 
     public Engine(JSONObject jsonObject) {
@@ -131,4 +75,7 @@ public class Engine implements EdmundsAttribute {
         return this.code;
     }
 
+    public String saveValue() {
+        return this.code;
+    }
 }

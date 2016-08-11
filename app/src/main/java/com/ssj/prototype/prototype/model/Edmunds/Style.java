@@ -46,4 +46,8 @@ public class Style implements EdmundsAttribute {
     public String searchValue() {
         return name;
     }
+
+    public String toString() {
+        return trim;
+    }
 }

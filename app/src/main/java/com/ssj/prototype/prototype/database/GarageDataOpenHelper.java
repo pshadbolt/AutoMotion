@@ -11,7 +11,7 @@ import android.util.Log;
 public class GarageDataOpenHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "garage.db";
-    private static final int DATABASE_VERSION = 11;
+    private static final int DATABASE_VERSION = 14;
 
     public static final String TABLE_NAME_GARAGE = "garage";
     public static final String COLUMN_GARAGE_ID = "_id";
@@ -19,9 +19,11 @@ public class GarageDataOpenHelper extends SQLiteOpenHelper {
     public static final String COLUMN_GARAGE_MAKE = "make";
     public static final String COLUMN_GARAGE_MODEL = "model";
     public static final String COLUMN_GARAGE_STYLE_ID = "style_id";
-    public static final String COLUMN_GARAGE_STYLE_TRIM = "style_trim";
+    public static final String COLUMN_GARAGE_STYLE_TRIM = "trim";
     public static final String COLUMN_GARAGE_ENGINE_ID = "engine_id";
-    public static final String COLUMN_GARAGE_ENGINE_CODE = "engine_code";
+    public static final String COLUMN_GARAGE_ENGINE_CODE = "engineCode";
+    public static final String COLUMN_GARAGE_ENGINE_HORSEPOWER = "horsepower";
+    public static final String COLUMN_GARAGE_ENGINE_SIZE = "engineSize";
     public static final String COLUMN_GARAGE_TRANSMISSION_ID = "transmission_id";
     public static final String COLUMN_GARAGE_TRANSMISSION_TYPE = "transmissionType";
     public static final String COLUMN_GARAGE_MILEAGE_TOTAL = "mileageTotal";
@@ -42,8 +44,13 @@ public class GarageDataOpenHelper extends SQLiteOpenHelper {
             + COLUMN_GARAGE_YEAR + " TEXT,"
             + COLUMN_GARAGE_MAKE + " TEXT,"
             + COLUMN_GARAGE_MODEL + " TEXT,"
+            + COLUMN_GARAGE_STYLE_ID + " TEXT,"
             + COLUMN_GARAGE_STYLE_TRIM + " TEXT,"
+            + COLUMN_GARAGE_ENGINE_ID + " TEXT,"
             + COLUMN_GARAGE_ENGINE_CODE + " TEXT,"
+            + COLUMN_GARAGE_ENGINE_HORSEPOWER + " integer,"
+            + COLUMN_GARAGE_ENGINE_SIZE + " integer,"
+            + COLUMN_GARAGE_TRANSMISSION_ID + " TEXT,"
             + COLUMN_GARAGE_TRANSMISSION_TYPE + " TEXT,"
             + COLUMN_GARAGE_MILEAGE_TOTAL + " integer,"
             + COLUMN_GARAGE_MILEAGE_ANNUAL + " integer"

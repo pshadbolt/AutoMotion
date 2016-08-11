@@ -49,6 +49,7 @@ public class GarageTestVIN {
         while (true) {
             try {
                 onData(anything()).inAdapterView(withId(R.id.listView)).atPosition(0).perform(longClick());
+                onView(withText("Delete Vehicle")).perform(click());
             } catch (Exception e) {
                 return;
             }

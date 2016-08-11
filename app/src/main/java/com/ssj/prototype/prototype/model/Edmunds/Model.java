@@ -39,4 +39,8 @@ public class Model implements EdmundsAttribute {
     public String searchValue() {
         return niceName;
     }
+
+    public String toString() {
+        return name;
+    }
 }

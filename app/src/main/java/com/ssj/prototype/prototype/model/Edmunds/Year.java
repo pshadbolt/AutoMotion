@@ -9,11 +9,11 @@ import org.json.JSONObject;
  */
 public class Year implements EdmundsAttribute {
 
+    private String year;
+
     public String getYear() {
         return year;
     }
-
-    private String year;
 
     public Year(String year) {
         this.year = year;
@@ -30,6 +30,10 @@ public class Year implements EdmundsAttribute {
 
     @Override
     public String searchValue() {
+        return year;
+    }
+
+    public String toString() {
         return year;
     }
 }

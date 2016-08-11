@@ -17,32 +17,8 @@ public class Transmission implements EdmundsAttribute {
     private String transmissionType;
     private int numberOfSpeeds;
 
-    public String getId() {
-        return id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public String getEquipmentType() {
-        return equipmentType;
-    }
-
-    public String getAvailability() {
-        return availability;
-    }
-
-    public String getAutomaticType() {
-        return automaticType;
-    }
-
-    public String getTransmissionType() {
+    public String getTransmissionType(){
         return transmissionType;
-    }
-
-    public int getNumberOfSpeeds() {
-        return numberOfSpeeds;
     }
 
     public Transmission(String transmissionType) {

@@ -25,6 +25,7 @@
         <activity
             android:name=".ui.VehicleActivity"
             android:label="@string/title_activity_vehicle"
+            android:launchMode="singleTop"
             android:parentActivityName=".ui.GarageActivity"
             android:theme="@style/AppTheme.NoActionBar">
             <meta-data
@@ -47,6 +48,24 @@
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.ssj.prototype.prototype.ui.DashBoardActivity" />
+        </activity>
+        <activity
+            android:name=".ui.MaintenanceScheduleActivity"
+            android:label="@string/title_activity_maintenance_schedule"
+            android:parentActivityName=".ui.VehicleActivity"
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.ssj.prototype.prototype.ui.VehicleActivity" />
+        </activity>
+        <activity
+            android:name=".ui.VehicleSpecsActivity"
+            android:label="@string/title_activity_vehicle_specs"
+            android:parentActivityName=".ui.VehicleActivity"
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.ssj.prototype.prototype.ui.VehicleActivity" />
         </activity>
     </application>
 
