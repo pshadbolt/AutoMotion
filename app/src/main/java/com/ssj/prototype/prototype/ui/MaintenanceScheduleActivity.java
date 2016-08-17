@@ -1,11 +1,8 @@
 package com.ssj.prototype.prototype.ui;
 
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.view.View;
 import android.widget.TextView;
 
 import com.ssj.prototype.prototype.R;
@@ -24,7 +21,7 @@ public class MaintenanceScheduleActivity extends AppCompatActivity {
         //Set the title
         GarageDataSource garageDataSource = new GarageDataSource(this);
         garageDataSource.open();
-        ((TextView) findViewById(R.id.textView1)).setText(garageDataSource.getMaintenance(this.getIntent().getExtras().getLong("id")));
+        ((TextView) findViewById(R.id.textView1)).setText(garageDataSource.getMaintenanceSchedule(this.getIntent().getExtras().getLong("id")));
         garageDataSource.close();
     }
 

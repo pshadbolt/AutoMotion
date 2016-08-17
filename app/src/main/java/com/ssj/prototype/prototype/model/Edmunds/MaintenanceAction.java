@@ -1,5 +1,8 @@
 package com.ssj.prototype.prototype.model.Edmunds;
 
+import android.database.Cursor;
+
+import com.ssj.prototype.prototype.database.GarageDataOpenHelper;
 import com.ssj.prototype.prototype.utils.JSONHelper;
 
 import org.json.JSONObject;
@@ -24,7 +27,7 @@ public class MaintenanceAction {
     private String id;
     private String engineCode;
     private String transmissionCode;
-    private String intervalMileage;
+    private int intervalMileage;
     private String intervalMonth;
     private String frequency;
     private String action;
@@ -42,7 +45,7 @@ public class MaintenanceAction {
         return transmissionCode;
     }
 
-    public String getIntervalMileage() {
+    public int getIntervalMileage() {
         return intervalMileage;
     }
 
@@ -66,11 +69,27 @@ public class MaintenanceAction {
         return itemDescription;
     }
 
+    public MaintenanceAction(Cursor cursor) {
+        //GarageDataOpenHelper.COLUMN_MAINTENANCE_ID,GarageDataOpenHelper.COLUMN_MAINTENANCE_VEHICLE_ID, GarageDataOpenHelper.COLUMN_MAINTENANCE_ENGINE_CODE, GarageDataOpenHelper.COLUMN_MAINTENANCE_TRANSMISSION_CODE, GarageDataOpenHelper.COLUMN_MAINTENANCE_FREQUENCY, GarageDataOpenHelper.COLUMN_MAINTENANCE_INTERVAL_MILEAGE, GarageDataOpenHelper.COLUMN_MAINTENANCE_ACTION, GarageDataOpenHelper.COLUMN_MAINTENANCE_ITEM, GarageDataOpenHelper.COLUMN_MAINTENANCE_ITEM_DESCRIPTION};
+        //this.id =
+        this.engineCode = cursor.getString(2);
+        this.transmissionCode = cursor.getString(3);
+        this.frequency = cursor.getString(4);
+        this.intervalMileage = cursor.getInt(5);
+        //this.intervalMonth =
+        this.action = cursor.getString(6);
+        this.item = cursor.getString(7);
+        this.itemDescription = cursor.getString(8);
+        //this.laborUnits =
+        //this.partUnits =
+        //this.driveType =
+    }
+
     public MaintenanceAction(JSONObject jsonObject) {
         this.id = JSONHelper.getString(jsonObject, "id");
         this.engineCode = JSONHelper.getString(jsonObject, "engineCode");
         this.transmissionCode = JSONHelper.getString(jsonObject, "transmissionCode");
-        this.intervalMileage = JSONHelper.getString(jsonObject, "intervalMileage");
+        this.intervalMileage = JSONHelper.getInt(jsonObject, "intervalMileage");
         this.intervalMonth = JSONHelper.getString(jsonObject, "intervalMonth");
         this.frequency = JSONHelper.getString(jsonObject, "frequency");
         this.action = JSONHelper.getString(jsonObject, "action");
@@ -79,5 +98,20 @@ public class MaintenanceAction {
         this.laborUnits = JSONHelper.getString(jsonObject, "laborUnits");
         this.partUnits = JSONHelper.getString(jsonObject, "partUnits");
         this.driveType = JSONHelper.getString(jsonObject, "driveType");
+    }
+
+    public String toString(){
+        return this.id + System.getProperty("line.separator") +
+                this.engineCode + System.getProperty("line.separator") +
+                this.transmissionCode + System.getProperty("line.separator") +
+                this.intervalMileage + System.getProperty("line.separator") +
+                this.intervalMonth + System.getProperty("line.separator") +
+                this.frequency + System.getProperty("line.separator") +
+                this.action + System.getProperty("line.separator") +
+                this.item + System.getProperty("line.separator") +
+                this.itemDescription + System.getProperty("line.separator") +
+                this.laborUnits + System.getProperty("line.separator") +
+                this.partUnits + System.getProperty("line.separator") +
+                this.driveType + System.getProperty("line.separator");
     }
 }

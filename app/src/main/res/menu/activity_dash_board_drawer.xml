@@ -6,19 +6,19 @@
             android:id="@+id/nav_garage"
             android:icon="@drawable/ic_store_mall_directory_black_24dp"
             android:title="Garage" />
-        <item
+        <!--item
             android:id="@+id/nav_gallery"
             android:icon="@drawable/ic_menu_manage"
-            android:title="Maintenance" />
+            android:title="Maintenance" /-->
     </group>
 
-    <item android:title="Developer Tools">
+    <!--item android:title="Developer Tools">
         <menu>
             <item
                 android:id="@+id/nav_debug"
                 android:icon="@drawable/ic_phonelink_setup_black_24dp"
                 android:title="Debug" />
         </menu>
-    </item>
+    </item-->
 
 </menu>

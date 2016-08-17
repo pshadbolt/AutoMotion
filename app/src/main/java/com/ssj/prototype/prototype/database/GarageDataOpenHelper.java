@@ -11,7 +11,7 @@ import android.util.Log;
 public class GarageDataOpenHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "garage.db";
-    private static final int DATABASE_VERSION = 14;
+    private static final int DATABASE_VERSION = 19;
 
     public static final String TABLE_NAME_GARAGE = "garage";
     public static final String COLUMN_GARAGE_ID = "_id";
@@ -30,7 +30,8 @@ public class GarageDataOpenHelper extends SQLiteOpenHelper {
     public static final String COLUMN_GARAGE_MILEAGE_ANNUAL = "mileageAnnual";
 
     public static final String TABLE_NAME_MAINTENANCE = "maintenance";
-    public static final String COLUMN_MAINTENANCE_VEHICLE_ID = "_id";
+    public static final String COLUMN_MAINTENANCE_ID = "_id";
+    public static final String COLUMN_MAINTENANCE_VEHICLE_ID = "_idVehicle";
     public static final String COLUMN_MAINTENANCE_ENGINE_CODE = "engineCode";
     public static final String COLUMN_MAINTENANCE_TRANSMISSION_CODE = "transmissionCode";
     public static final String COLUMN_MAINTENANCE_INTERVAL_MILEAGE = "intervalMileage";
@@ -38,6 +39,7 @@ public class GarageDataOpenHelper extends SQLiteOpenHelper {
     public static final String COLUMN_MAINTENANCE_ACTION = "action";
     public static final String COLUMN_MAINTENANCE_ITEM = "item";
     public static final String COLUMN_MAINTENANCE_ITEM_DESCRIPTION = "itemDescription";
+    public static final String COLUMN_MAINTENANCE_COMPLETED = "completed";
 
     private static final String TABLE_CREATE_GARAGE = "CREATE TABLE " + TABLE_NAME_GARAGE
             + " (" + COLUMN_GARAGE_ID + " integer primary key autoincrement, "
@@ -49,7 +51,7 @@ public class GarageDataOpenHelper extends SQLiteOpenHelper {
             + COLUMN_GARAGE_ENGINE_ID + " TEXT,"
             + COLUMN_GARAGE_ENGINE_CODE + " TEXT,"
             + COLUMN_GARAGE_ENGINE_HORSEPOWER + " integer,"
-            + COLUMN_GARAGE_ENGINE_SIZE + " integer,"
+            + COLUMN_GARAGE_ENGINE_SIZE + " FLOAT,"
             + COLUMN_GARAGE_TRANSMISSION_ID + " TEXT,"
             + COLUMN_GARAGE_TRANSMISSION_TYPE + " TEXT,"
             + COLUMN_GARAGE_MILEAGE_TOTAL + " integer,"
@@ -57,15 +59,16 @@ public class GarageDataOpenHelper extends SQLiteOpenHelper {
             + ");";
 
     private static final String TABLE_CREATE_MAINTENANCE = "CREATE TABLE " + TABLE_NAME_MAINTENANCE
-            + " (" + COLUMN_MAINTENANCE_VEHICLE_ID + " integer"
-            + "FOREIGN KEY REFERENCES " + TABLE_NAME_GARAGE + "(" + COLUMN_GARAGE_ID + "),"
+            + " (" + COLUMN_MAINTENANCE_ID + " integer primary key autoincrement, "
+            + COLUMN_MAINTENANCE_VEHICLE_ID + " integer" + "FOREIGN KEY REFERENCES " + TABLE_NAME_GARAGE + "(" + COLUMN_GARAGE_ID + "),"
             + COLUMN_MAINTENANCE_ENGINE_CODE + " TEXT,"
             + COLUMN_MAINTENANCE_TRANSMISSION_CODE + " TEXT,"
             + COLUMN_MAINTENANCE_INTERVAL_MILEAGE + " integer,"
             + COLUMN_MAINTENANCE_FREQUENCY + " integer,"
             + COLUMN_MAINTENANCE_ACTION + " TEXT,"
             + COLUMN_MAINTENANCE_ITEM + " TEXT,"
-            + COLUMN_MAINTENANCE_ITEM_DESCRIPTION + " TEXT"
+            + COLUMN_MAINTENANCE_ITEM_DESCRIPTION + " TEXT,"
+            + COLUMN_MAINTENANCE_COMPLETED + " TEXT"
             + ");";
 
     private static final String TABLE_DROP_GARAGE = "DROP TABLE IF EXISTS " + TABLE_NAME_GARAGE;

@@ -135,7 +135,7 @@ public class Vehicle {
         this.make = new Make(cursor.getString(2), null);
         this.model = new Model(cursor.getString(3), null);
         this.style = new Style(null, null, cursor.getString(4));
-        this.engine = new Engine(cursor.getString(5), cursor.getInt(6), cursor.getInt(7));
+        this.engine = new Engine(cursor.getString(5), cursor.getInt(6), cursor.getFloat(7));
         this.transmission = new Transmission(cursor.getString(8));
         this.mileageTotal = cursor.getInt(9);
         this.mileageAnnual = cursor.getInt(10);
@@ -146,6 +146,9 @@ public class Vehicle {
     }
 
     public String specs() {
-        return this.engine.getSize() + System.getProperty("line.separator") + this.engine.getHorsepower();
+        return "Engine Size: "+this.engine.getSize() + System.getProperty("line.separator")
+                + "Engine Code: "+this.engine.getCode()+ System.getProperty("line.separator")
+                + "Horsepower: "+this.engine.getHorsepower()+ System.getProperty("line.separator")
+                + "Mileage: "+this.mileageTotal;
     }
 }

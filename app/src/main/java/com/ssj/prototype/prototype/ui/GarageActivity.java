@@ -250,7 +250,7 @@ public class GarageActivity extends AppCompatActivity {
      */
     private void populateList() {
         garageDatasource.open();
-        vehicles = garageDatasource.getAllVehicles();
+        vehicles = garageDatasource.getAllVehicle();
         garageDatasource.close();
         String[] vehicleStrings = new String[vehicles.size()];
 

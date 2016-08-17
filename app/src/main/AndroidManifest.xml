@@ -67,6 +67,15 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.ssj.prototype.prototype.ui.VehicleActivity" />
         </activity>
+        <activity
+            android:name=".ui.MaintenanceActivity"
+            android:label="@string/title_activity_maintenance"
+            android:parentActivityName=".ui.DashBoardActivity"
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.ssj.prototype.prototype.ui.DashBoardActivity" />
+        </activity>
     </application>
 
 </manifest>

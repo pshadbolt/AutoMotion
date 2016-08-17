@@ -10,11 +10,13 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 
 import com.ssj.prototype.prototype.model.Edmunds.Engine;
+import com.ssj.prototype.prototype.model.Edmunds.MaintenanceAction;
 import com.ssj.prototype.prototype.model.Edmunds.Make;
 import com.ssj.prototype.prototype.model.Edmunds.Model;
 import com.ssj.prototype.prototype.model.Edmunds.Style;
 import com.ssj.prototype.prototype.model.Edmunds.Transmission;
 import com.ssj.prototype.prototype.model.Edmunds.Year;
+import com.ssj.prototype.prototype.model.Maintenance;
 import com.ssj.prototype.prototype.model.Vehicle;
 
 import java.util.ArrayList;
@@ -30,7 +32,7 @@ public class GarageDataSource {
     private SQLiteDatabase database;
     private GarageDataOpenHelper dbHelper;
     private String[] allGarageColumns = {GarageDataOpenHelper.COLUMN_GARAGE_ID, GarageDataOpenHelper.COLUMN_GARAGE_YEAR, GarageDataOpenHelper.COLUMN_GARAGE_MAKE, GarageDataOpenHelper.COLUMN_GARAGE_MODEL, GarageDataOpenHelper.COLUMN_GARAGE_STYLE_TRIM, GarageDataOpenHelper.COLUMN_GARAGE_ENGINE_CODE, GarageDataOpenHelper.COLUMN_GARAGE_ENGINE_HORSEPOWER, GarageDataOpenHelper.COLUMN_GARAGE_ENGINE_SIZE, GarageDataOpenHelper.COLUMN_GARAGE_TRANSMISSION_TYPE, GarageDataOpenHelper.COLUMN_GARAGE_MILEAGE_TOTAL, GarageDataOpenHelper.COLUMN_GARAGE_MILEAGE_ANNUAL};
-    private String[] allMaintenanceColumns = {GarageDataOpenHelper.COLUMN_MAINTENANCE_VEHICLE_ID, GarageDataOpenHelper.COLUMN_MAINTENANCE_ENGINE_CODE, GarageDataOpenHelper.COLUMN_MAINTENANCE_TRANSMISSION_CODE, GarageDataOpenHelper.COLUMN_MAINTENANCE_FREQUENCY, GarageDataOpenHelper.COLUMN_MAINTENANCE_INTERVAL_MILEAGE, GarageDataOpenHelper.COLUMN_MAINTENANCE_ACTION, GarageDataOpenHelper.COLUMN_MAINTENANCE_ITEM, GarageDataOpenHelper.COLUMN_MAINTENANCE_ITEM_DESCRIPTION};
+    private String[] allMaintenanceColumns = {GarageDataOpenHelper.COLUMN_MAINTENANCE_ID, GarageDataOpenHelper.COLUMN_MAINTENANCE_VEHICLE_ID, GarageDataOpenHelper.COLUMN_MAINTENANCE_ENGINE_CODE, GarageDataOpenHelper.COLUMN_MAINTENANCE_TRANSMISSION_CODE, GarageDataOpenHelper.COLUMN_MAINTENANCE_FREQUENCY, GarageDataOpenHelper.COLUMN_MAINTENANCE_INTERVAL_MILEAGE, GarageDataOpenHelper.COLUMN_MAINTENANCE_ACTION, GarageDataOpenHelper.COLUMN_MAINTENANCE_ITEM, GarageDataOpenHelper.COLUMN_MAINTENANCE_ITEM_DESCRIPTION, GarageDataOpenHelper.COLUMN_MAINTENANCE_COMPLETED};
 
     public GarageDataSource(Context context) {
         this.context = context;
@@ -60,6 +62,7 @@ public class GarageDataSource {
         values.put(GarageDataOpenHelper.COLUMN_GARAGE_STYLE_TRIM, style.getTrim());
         values.put(GarageDataOpenHelper.COLUMN_GARAGE_ENGINE_CODE, engine.getCode());
         values.put(GarageDataOpenHelper.COLUMN_GARAGE_ENGINE_HORSEPOWER, engine.getHorsepower());
+        values.put(GarageDataOpenHelper.COLUMN_GARAGE_ENGINE_SIZE, engine.getSize());
         values.put(GarageDataOpenHelper.COLUMN_GARAGE_TRANSMISSION_TYPE, transmission.getTransmissionType());
         values.put(GarageDataOpenHelper.COLUMN_GARAGE_MILEAGE_TOTAL, Integer.parseInt(mileageTotal));
         values.put(GarageDataOpenHelper.COLUMN_GARAGE_MILEAGE_ANNUAL, Integer.parseInt(mileageAnnual));
@@ -71,12 +74,12 @@ public class GarageDataSource {
     /**
      *
      */
-    public void insertMaintenance(Vehicle vehicle, String engineCode, String transmissionCode, String mileage, String frequency, String action, String item, String itemDescription) {
+    public void insertMaintenance(Vehicle vehicle, String engineCode, String transmissionCode, int mileage, String frequency, String action, String item, String itemDescription) {
         ContentValues values = new ContentValues();
         values.put(GarageDataOpenHelper.COLUMN_MAINTENANCE_VEHICLE_ID, vehicle.getId());
         values.put(GarageDataOpenHelper.COLUMN_MAINTENANCE_ENGINE_CODE, engineCode);
         values.put(GarageDataOpenHelper.COLUMN_MAINTENANCE_TRANSMISSION_CODE, transmissionCode);
-        values.put(GarageDataOpenHelper.COLUMN_MAINTENANCE_INTERVAL_MILEAGE, Integer.parseInt(mileage));
+        values.put(GarageDataOpenHelper.COLUMN_MAINTENANCE_INTERVAL_MILEAGE, mileage);
         values.put(GarageDataOpenHelper.COLUMN_MAINTENANCE_FREQUENCY, Integer.parseInt(frequency));
         values.put(GarageDataOpenHelper.COLUMN_MAINTENANCE_ACTION, action);
         values.put(GarageDataOpenHelper.COLUMN_MAINTENANCE_ITEM, item);
@@ -84,8 +87,13 @@ public class GarageDataSource {
         database.insert(GarageDataOpenHelper.TABLE_NAME_MAINTENANCE, null, values);
     }
 
+    public void completeMaintenance(long id) {
+        ContentValues values = new ContentValues();
+        values.put(GarageDataOpenHelper.COLUMN_MAINTENANCE_COMPLETED, "done");
+        database.update(GarageDataOpenHelper.TABLE_NAME_MAINTENANCE, values, GarageDataOpenHelper.COLUMN_MAINTENANCE_ID + " = " + id, null);
+    }
+
     /**
-     *
      * @param id
      */
     public void deleteVehicle(long id) {
@@ -93,17 +101,32 @@ public class GarageDataSource {
     }
 
     /**
-     *
      * @param id
      * @return
      */
+    public MaintenanceAction getMaintenanceAction(long id) {
+        MaintenanceAction maintenanceAction = null;
+        Cursor cursor = database.query(GarageDataOpenHelper.TABLE_NAME_MAINTENANCE, allMaintenanceColumns, GarageDataOpenHelper.COLUMN_MAINTENANCE_ID + "=\'" + id + "\'", null, null, null, null, null);
+        cursor.moveToFirst();
+        while (!cursor.isAfterLast()) {
+            maintenanceAction = new MaintenanceAction(cursor);
+            cursor.moveToNext();
+        }
+        cursor.close();
+        return maintenanceAction;
+    }
+
+    /**
+     * @param id
+     * @return
+     */
+
     public Vehicle getVehicle(long id) {
         Vehicle vehicle = null;
         Cursor cursor = database.query(GarageDataOpenHelper.TABLE_NAME_GARAGE, allGarageColumns, GarageDataOpenHelper.COLUMN_GARAGE_ID + "=\'" + id + "\'", null, null, null, null, null);
         cursor.moveToFirst();
         while (!cursor.isAfterLast()) {
-            vehicle=new Vehicle(cursor);
-            //response = cursor.getString(0) + " " + cursor.getString(1) + " " + cursor.getString(2) + " " + cursor.getString(3) + " " + cursor.getString(4) + " " + cursor.getString(5) + " " + cursor.getString(6);
+            vehicle = new Vehicle(cursor);
             cursor.moveToNext();
         }
         cursor.close();
@@ -111,7 +134,6 @@ public class GarageDataSource {
     }
 
     /**
-     *
      * @param id
      * @return
      */
@@ -131,23 +153,22 @@ public class GarageDataSource {
     }
 
     /**
-     *
      * @param id
      * @return
      */
-    public String getMaintenance(long id) {
+    public String getMaintenanceSchedule(long id) {
         String response = "";
 
         //query(boolean distinct, String table, String[] columns, String selection, String[] selectionArgs, String groupBy, String having, String orderBy, String limit)
-        Cursor cursor = database.query(GarageDataOpenHelper.TABLE_NAME_MAINTENANCE, allMaintenanceColumns, GarageDataOpenHelper.COLUMN_MAINTENANCE_VEHICLE_ID + "=\'" + id + "\'", null, null, null, GarageDataOpenHelper.COLUMN_MAINTENANCE_INTERVAL_MILEAGE + " ASC", null);
+        Cursor cursor = database.query(GarageDataOpenHelper.TABLE_NAME_MAINTENANCE, allMaintenanceColumns, GarageDataOpenHelper.COLUMN_MAINTENANCE_VEHICLE_ID + " =\'" + id + "\'", null, null, null, GarageDataOpenHelper.COLUMN_MAINTENANCE_INTERVAL_MILEAGE + " ASC", null);
         cursor.moveToFirst();
         while (!cursor.isAfterLast()) {
             response += "MILEAGE:\t\t\t\t\t\t" + cursor.getString(4) + System.getProperty("line.separator");
             response += "FREQUENCY:\t\t\t\t" + cursor.getString(3) + System.getProperty("line.separator");
             response += "ENGINE:\t\t\t\t\t\t\t\t" + cursor.getString(1) + System.getProperty("line.separator");
             response += "TRANSMISSION:\t" + cursor.getString(2) + System.getProperty("line.separator");
-            response += cursor.getString(5) + ": " + cursor.getString(6) + System.getProperty("line.separator");
-            response += cursor.getString(7) + System.getProperty("line.separator") + System.getProperty("line.separator");
+            response += cursor.getString(6) + ": " + cursor.getString(7) + System.getProperty("line.separator");
+            response += cursor.getString(8) + System.getProperty("line.separator") + System.getProperty("line.separator");
             cursor.moveToNext();
         }
         cursor.close();
@@ -155,10 +176,9 @@ public class GarageDataSource {
     }
 
     /**
-     *
      * @return
      */
-    public ArrayList<Vehicle> getAllVehicles() {
+    public ArrayList<Vehicle> getAllVehicle() {
         ArrayList<Vehicle> vehicles = new ArrayList<Vehicle>();
 
         Cursor cursor = database.query(GarageDataOpenHelper.TABLE_NAME_GARAGE, allGarageColumns, null, null, null, null, null);
@@ -173,13 +193,31 @@ public class GarageDataSource {
     }
 
     /**
+     * Return all maintenance that has not been marked completed
+     */
+    public ArrayList<Maintenance> getAllMaintenance() {
+        ArrayList<Maintenance> maintenances = new ArrayList<>();
+
+        Cursor cursor = database.query(GarageDataOpenHelper.TABLE_NAME_MAINTENANCE, allMaintenanceColumns, GarageDataOpenHelper.COLUMN_MAINTENANCE_COMPLETED + " is null", null, null, null, null);
+        //Cursor cursor = database.query(GarageDataOpenHelper.TABLE_NAME_MAINTENANCE, allMaintenanceColumns, null, null, null, null, null);
+        cursor.moveToFirst();
+        while (!cursor.isAfterLast()) {
+            Maintenance maintenance = new Maintenance(cursor.getLong(0), getVehicle(cursor.getLong(1)), new MaintenanceAction(cursor));
+            maintenances.add(maintenance);
+            cursor.moveToNext();
+        }
+        cursor.close();
+        return maintenances;
+    }
+
+    /**
      * @return
      */
     public String[] getAllMaintenanceActivities() {
         ArrayList<String> responses = new ArrayList<>();
         ArrayList<Integer> sort = new ArrayList<>();
 
-        ArrayList<Vehicle> vehicles = getAllVehicles();
+        ArrayList<Vehicle> vehicles = getAllVehicle();
         for (Vehicle vehicle : vehicles) {
 
             //Set the mileage threshold to search
@@ -188,7 +226,7 @@ public class GarageDataSource {
             int low = vehicle.getMileageTotal() - threshold;
             int high = vehicle.getMileageTotal() + threshold;
 
-            Log.d("QUERY", GarageDataOpenHelper.COLUMN_MAINTENANCE_INTERVAL_MILEAGE + " between " + low + " and " + high + " and " + GarageDataOpenHelper.COLUMN_MAINTENANCE_VEHICLE_ID + "=\'" + vehicle.getId() + "\'" + " and " + GarageDataOpenHelper.COLUMN_MAINTENANCE_ENGINE_CODE + "=\'" + vehicle.getEngine() + "\'" + " and (" + GarageDataOpenHelper.COLUMN_MAINTENANCE_TRANSMISSION_CODE + "=\'" + vehicle.getTransmission() + "\' OR " + GarageDataOpenHelper.COLUMN_MAINTENANCE_TRANSMISSION_CODE + "=\'ALL\'" + ")");
+            Log.d("QUERY", GarageDataOpenHelper.COLUMN_MAINTENANCE_INTERVAL_MILEAGE + " between " + low + " and " + high + " and " + GarageDataOpenHelper.COLUMN_MAINTENANCE_VEHICLE_ID + "=\'" + vehicle.getId() + "\'" + " and " + GarageDataOpenHelper.COLUMN_MAINTENANCE_ENGINE_CODE + "=\'" + vehicle.getEngine().getCode() + "\'" + " and (" + GarageDataOpenHelper.COLUMN_MAINTENANCE_TRANSMISSION_CODE + "=\'" + vehicle.getTransmission().getTransmissionType() + "\' OR " + GarageDataOpenHelper.COLUMN_MAINTENANCE_TRANSMISSION_CODE + "=\'ALL\'" + ")");
             Cursor cursor = database.query(GarageDataOpenHelper.TABLE_NAME_MAINTENANCE, allMaintenanceColumns, GarageDataOpenHelper.COLUMN_MAINTENANCE_INTERVAL_MILEAGE + " between " + low + " and " + high + " and " + GarageDataOpenHelper.COLUMN_MAINTENANCE_VEHICLE_ID + "=\'" + vehicle.getId() + "\'" + " and " + GarageDataOpenHelper.COLUMN_MAINTENANCE_ENGINE_CODE + "=\'" + vehicle.getEngine().getCode() + "\'" + " and (" + GarageDataOpenHelper.COLUMN_MAINTENANCE_TRANSMISSION_CODE + "=\'" + vehicle.getTransmission().getTransmissionType() + "\' OR " + GarageDataOpenHelper.COLUMN_MAINTENANCE_TRANSMISSION_CODE + "=\'ALL\'" + ")", null, null, null, null);
             cursor.moveToFirst();
             while (!cursor.isAfterLast()) {

@@ -8,6 +8,26 @@ import org.json.JSONObject;
  */
 public class JSONHelper {
 
+    public static int getInt(JSONObject jsonObject, String attribute) {
+        if (jsonObject != null && jsonObject.has(attribute))
+            try {
+                return jsonObject.getInt(attribute);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        return 0;
+    }
+
+    public static float getFloat(JSONObject jsonObject, String attribute) {
+        if (jsonObject != null && jsonObject.has(attribute))
+            try {
+                return (float)jsonObject.getDouble(attribute);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        return 0;
+    }
+
     public static String getString(JSONObject jsonObject, String attribute) {
         if (jsonObject != null && jsonObject.has(attribute))
             try {
@@ -18,13 +38,5 @@ public class JSONHelper {
         return "";
     }
 
-    public static int getInt(JSONObject jsonObject, String attribute) {
-        if (jsonObject != null && jsonObject.has(attribute))
-            try {
-                return jsonObject.getInt(attribute);
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-        return 0;
-    }
+
 }

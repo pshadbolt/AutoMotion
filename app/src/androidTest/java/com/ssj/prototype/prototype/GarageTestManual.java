@@ -73,30 +73,35 @@ public class GarageTestManual {
     public void addRemoveTest1() {
         addRemoveVehicle("Chevrolet", "Cruze", "2011", "Eco", "1.4", "MANUAL", "61386", "12000");
         onData(hasToString(startsWith("2011,Chevrolet,Cruze,Eco"))).inAdapterView(withId(R.id.listView)).perform(longClick());
+        onView(withText("Delete Vehicle")).perform(click());
     }
 
     @Test
     public void addRemoveTest2() {
         addRemoveVehicle("Toyota", "Corolla", "2001", "CE", "1.8", "AUTOMATIC", "114500", "10000");
         onData(hasToString(startsWith("2001,Toyota,Corolla,CE"))).inAdapterView(withId(R.id.listView)).perform(longClick());
+        onView(withText("Delete Vehicle")).perform(click());
     }
 
     @Test
     public void addRemoveTest3() {
         addRemoveVehicle("Ford", "F-150", "2014", "Limited", "3.5", "AUTOMATIC", "45000", "20000");
         onData(hasToString(startsWith("2014,Ford,F-150,Limited"))).inAdapterView(withId(R.id.listView)).perform(longClick());
+        onView(withText("Delete Vehicle")).perform(click());
     }
 
     @Test
     public void addRemoveTest4() {
         addRemoveVehicle("Tesla", "Model X", "2016", "90D", null, "DIRECT_DRIVE", "45000", "20000");
         onData(hasToString(startsWith("2016,Tesla,Model X,90D"))).inAdapterView(withId(R.id.listView)).perform(longClick());
+        onView(withText("Delete Vehicle")).perform(click());
     }
 
     @Test
     public void addRemoveTest5() {
         addRemoveVehicle("Chevrolet", "Astro", "2005", "Base", "4.3", "AUTOMATIC", "10000", "1000");
         onData(hasToString(startsWith("2016,Tesla,Model X,90D"))).inAdapterView(withId(R.id.listView)).perform(longClick());
+        onView(withText("Delete Vehicle")).perform(click());
     }
 }
 

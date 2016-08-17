@@ -1,5 +1,7 @@
 package com.ssj.prototype.prototype.model.Edmunds;
 
+import android.util.Log;
+
 import com.ssj.prototype.prototype.utils.JSONHelper;
 
 import org.json.JSONObject;
@@ -15,7 +17,7 @@ public class Engine implements EdmundsAttribute {
     private String availability;
     private int compressionRatio;
     private int cylinder;
-    private int size;
+    private float size;
     private int displacement;
     private String configuration;
     private String fuelType;
@@ -35,14 +37,14 @@ public class Engine implements EdmundsAttribute {
         return horsepower;
     }
 
-    public int getSize() {
+    public float getSize() {
         return size;
     }
 
-    public Engine(String code, int horsepower, int size) {
+    public Engine(String code, int horsepower, float size) {
         this.code = code;
-        this.size = size;
         this.horsepower = horsepower;
+        this.size = size;
     }
 
     public Engine(JSONObject jsonObject) {
@@ -52,7 +54,7 @@ public class Engine implements EdmundsAttribute {
         this.availability = JSONHelper.getString(jsonObject, "availability");
         this.compressionRatio = JSONHelper.getInt(jsonObject, "compressionRatio");
         this.cylinder = JSONHelper.getInt(jsonObject, "cylinder");
-        this.size = JSONHelper.getInt(jsonObject, "size");
+        this.size = JSONHelper.getFloat(jsonObject, "size");
         this.displacement = JSONHelper.getInt(jsonObject, "displacement");
         this.configuration = JSONHelper.getString(jsonObject, "configuration");
         this.fuelType = JSONHelper.getString(jsonObject, "fuelType");
@@ -63,6 +65,7 @@ public class Engine implements EdmundsAttribute {
         this.type = JSONHelper.getString(jsonObject, "type");
         this.code = JSONHelper.getString(jsonObject, "code");
         this.compressorType = JSONHelper.getString(jsonObject, "compressorType");
+        //Log.d("ENGINE",toString());
     }
 
     @Override
@@ -75,7 +78,24 @@ public class Engine implements EdmundsAttribute {
         return this.code;
     }
 
-    public String saveValue() {
-        return this.code;
+    public String toString() {
+        return this.id + System.getProperty("line.separator") +
+                this.name + System.getProperty("line.separator") +
+                this.equipmentType + System.getProperty("line.separator") +
+                this.availability + System.getProperty("line.separator") +
+                this.compressionRatio + System.getProperty("line.separator") +
+                this.cylinder + System.getProperty("line.separator") +
+                this.size + System.getProperty("line.separator") +
+                this.displacement + System.getProperty("line.separator") +
+                this.configuration + System.getProperty("line.separator") +
+                this.fuelType + System.getProperty("line.separator") +
+                this.horsepower + System.getProperty("line.separator") +
+                this.torque + System.getProperty("line.separator") +
+                this.totalValves + System.getProperty("line.separator") +
+                this.manufacturerEngineCode + System.getProperty("line.separator") +
+                this.type + System.getProperty("line.separator") +
+                this.code + System.getProperty("line.separator") +
+                this.compressorType + System.getProperty("line.separator");
     }
+
 }
